@@ -24,9 +24,7 @@ class StoreDetails extends Component {
   }
 
   loadProducts = async () => {
-    // ============== BEGIN: Function implementation here ================ //
-
-    // TODO: We want to load the lists of stores that our contract has
+    // TODO: Load the lists of stores that our contract has
     // this.state.stores expects an array of objects with these attributes:
     // {
     //   id: "store Id",
@@ -53,7 +51,9 @@ class StoreDetails extends Component {
     return (
       <div>
         <Jumbotron title="Store Name" subtitle="Store Description!" />
-        <ProductList title="Products" list={products} />
+        <div className="container">
+          <ProductList title="Products" list={products} />
+        </div>
       </div>
     );
   }
