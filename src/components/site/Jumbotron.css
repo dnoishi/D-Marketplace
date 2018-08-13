@@ -1,0 +1,7 @@
+.jumbotron {
+    background-image: url(../../images/jumboBack.jpeg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    color: white;
+}

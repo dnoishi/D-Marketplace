@@ -1,0 +1,9 @@
+.card {
+    width: 18rem;
+}
+
+.card img {
+    height: 225px;
+    width: 100%;
+    display: block;
+}
