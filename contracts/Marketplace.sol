@@ -19,6 +19,19 @@ contract Marketplace is Ownable, Pausable {
     uint public NoOwners;
     mapping (address => bool) isOwner;
 
+    struct Store {
+        bytes metadataHash; //IPFS Hash
+        uint balance;
+        uint productCount;
+    }
+
+
+    Store[] public stores;
+
+    mapping (uint => address) public storeToOwner;
+    mapping (address => uint) ownerStoreCount;
+
+
     // Modifiers
 
     /**
