@@ -61,7 +61,11 @@ contract ManageStore is ManageOwner {
 
     //Initialize safeMath library
     using SafeMath for uint; 
-    
+
+    /**
+    * @dev Allows a store owner to add a store front to the market.
+    * @param _metadata IPFS Hash with the store metadata.
+    */
     function addStore(bytes _metadata) public onlyStoreOwner {
         uint id = stores.push(Store({metadataHash: _metadata, balance: 0, productCount: 0})).sub(1);
         storeToOwner[id] = msg.sender;
@@ -69,6 +73,13 @@ contract ManageStore is ManageOwner {
         emit LogStoreAdded(msg.sender, id);
     }
 
+    /**
+    * @dev Allows a store owner to add a product to an existing store.
+    * @param _storeId Id of the store where the product will be added.
+    * @param _productMetadata IPFS Hash with the product metadata.
+    * @param _price price of the product on the market.
+    * @param _quantity quantity avaliable for users to purchase.
+    */
     function addProductToStore(uint _storeId, bytes _productMetadata, uint _price, uint _quantity) public onlyOwnerOf(_storeId){
         uint id = products.push(Product({metadataHash: _productMetadata, price: _price, quantity: _quantity})).sub(1);
         productToStore[id] = _storeId;

@@ -53,7 +53,7 @@ contract ManageOwner is Ownable, Pausable {
         emit LogAddressAdded(_address, "Admin");
     }
 
-     /**
+    /**
     * @dev Allows the contract owner to add a new Admin to the contract.
     * @param _address The address to add as Admin.
     */
