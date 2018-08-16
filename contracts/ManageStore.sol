@@ -86,23 +86,44 @@ contract ManageStore is ManageOwner {
         emit LogProductAdded(_storeId, id);
     }
 
+    /**
+    * @dev Allows a store owner to remove a product from the store.
+    * @param _storeId Id of the store where the product will be removed.
+    * @param _productId id of the product to be removed.
+    */
     function removeProductFromStore(uint _storeId, uint _productId) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
         delete products[_productId];
         emit LogProductRemoved(_storeId, _productId);
     }
 
+    /**
+    * @dev Allows a store owner to change a product price from the store.
+    * @param _storeId Id of the store.
+    * @param _productId id of the product to be changed.
+    * @param _newPrice new price for the product.
+    */
     function changeProductPrice(uint _storeId, uint _productId, uint _newPrice) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
         Product storage p = products[_productId];
         p.price = _newPrice;
         emit LogPriceChanged(_storeId, _productId, _newPrice);
     }
 
+    /**
+    * @dev Allows a store owner to change a avaliable quantity of a product.
+    * @param _storeId Id of the store.
+    * @param _productId id of the product to be changed.
+    * @param _newQuantity new quantity for the product.
+    */
     function changeProductQuantity(uint _storeId, uint _productId, uint _newQuantity) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
         Product storage p = products[_productId];
         p.quantity = _newQuantity;
         emit LogQuantityChanged(_storeId, _productId, _newQuantity);
     }
 
+    /**
+    * @dev Allows a store owner to withdraw the balance of a store.
+    * @param _storeId Id of the store.
+    */
     function withdrawStoreFunds(uint _storeId) public onlyOwnerOf(_storeId) {
         Store storage s = stores[_storeId]; //Get reference of the store
         uint contractBalance = address(this).balance; //Get contract current balance

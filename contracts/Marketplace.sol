@@ -43,6 +43,9 @@ contract Marketplace is ManageStore {
         return stores.length;
     }
     
+    /**
+    * @dev Allow us to get the contract current balance.
+    */
     function getContractBalance() public view returns (uint){
         return address(this).balance;
     }
