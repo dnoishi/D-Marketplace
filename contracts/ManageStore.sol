@@ -131,8 +131,7 @@ contract ManageStore is ManageOwner {
         require(contractBalance >= amountToSend, "Contract doesn't count with the balance need it"); 
         require(amountToSend > 0, "Your store balance needs to be greater than 0"); //check that the store has a valid balace to withdraw
         s.balance -= amountToSend; //remove amount from store reference
-        address(this).balance.sub(amountToSend); //remove balance from contract
-        address(msg.sender).balance.add(amountToSend); //send it to function caller
+        address(msg.sender).transfer(amountToSend); //send it to function caller
         emit LogStoreWithdrawed(msg.sender, amountToSend);
     }
     

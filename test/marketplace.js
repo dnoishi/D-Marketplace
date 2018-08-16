@@ -10,7 +10,6 @@ contract("Marketplace", accounts => {
   const ipfsHash = 0x017dfd85d4f6cb4dcd715a88101f7b1f06cd1e009b2327a0809d01eb9c91f231;
 
   let product_id;
-  let order_id;
   let store_id;
   let added_address;
 
@@ -186,6 +185,62 @@ contract("Marketplace", accounts => {
       eventEmitted,
       true,
       "adding a product should emit a Log Product Sold event"
+    );
+  });
+
+  it("store owner can withdraw a store balance", async () => {
+    const marketplace = await Marketplace.deployed();
+
+    let eventEmitted = false;
+    let expectedBalance = 0;
+    let amountWithdrawed = 0;
+
+    let ownerBalanceBefore = await web3.eth.getBalance(storeOwner).toNumber();
+    let contractBalanceBefore = await web3.eth
+      .getBalance(marketplace.address)
+      .toNumber();
+    let storeb = await marketplace.stores.call(store_id);
+    let storeBalanceBefore = storeb[1].toNumber();
+
+    let event = marketplace.LogStoreWithdrawed();
+    await event.watch((err, res) => {
+      amountWithdrawed = res.args._balance;
+      eventEmitted = true;
+    });
+
+    await marketplace.withdrawStoreFunds(store_id, { from: storeOwner });
+
+    let ownerBalanceAfter = await web3.eth.getBalance(storeOwner).toNumber();
+    let contractBalanceAfter = await web3.eth
+      .getBalance(marketplace.address)
+      .toNumber();
+    let storea = await marketplace.stores.call(store_id);
+    let storeBalanceAfter = storea[1].toNumber();
+
+    assert.equal(
+      amountWithdrawed,
+      storeBalanceBefore,
+      "the amount withdawed needs to be the same with the store balance"
+    );
+    assert.isBelow(
+      ownerBalanceAfter,
+      ownerBalanceBefore + amountWithdrawed,
+      "the owner balance should be increased by the amount withdrawed and decreased the gas cost"
+    );
+    assert.equal(
+      storeBalanceAfter,
+      expectedBalance,
+      "the store balance need to be 0"
+    );
+    assert.equal(
+      contractBalanceAfter,
+      contractBalanceBefore - amountWithdrawed,
+      "contract's balance should be decreased by the amount withdrawed"
+    );
+    assert.equal(
+      eventEmitted,
+      true,
+      "adding a store should emit a Log Store Withdrawed event"
     );
   });
 });
