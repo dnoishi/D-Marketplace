@@ -24,7 +24,7 @@ contract ManageStore is ManageOwner {
     Store[] public stores;
 
     mapping (uint => address) public storeToOwner;
-    mapping (address => uint) ownerStoreCount;
+    mapping (address => uint) public ownerStoreCount;
 
     struct Product {
         bytes metadataHash; //IPFS Hash
@@ -93,6 +93,10 @@ contract ManageStore is ManageOwner {
     */
     function removeProductFromStore(uint _storeId, uint _productId) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
         delete products[_productId];
+        Product replacer = products[products.length - 1];
+        products[_productId] = replacer;
+        products.length--;
+
         emit LogProductRemoved(_storeId, _productId);
     }
 

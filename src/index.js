@@ -1,11 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
+import getWeb3 from "./utils/getWeb3";
 
-ReactDOM.render(
-  <Router>
-    <App />
-  </Router>,
-  document.getElementById("root")
-);
+getWeb3
+  .then(results => {
+    ReactDOM.render(
+      <App web3={results.web3} />,
+      document.getElementById("root")
+    );
+  })
+  .catch(e => {
+    console.log(e);
+    console.log("Error finding web3.");
+  });

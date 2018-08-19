@@ -11,9 +11,9 @@ class StoreDetails extends Component {
   }
 
   componentDidMount() {
-    const {
+    /*const {
       match: { params }
-    } = this.props;
+    } = this.props;*/
 
     //TODO: Get store details from our contract and display it here!
     // Also get the list of products of this store

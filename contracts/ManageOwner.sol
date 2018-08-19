@@ -11,12 +11,12 @@ contract ManageOwner is Ownable, Pausable {
 
     // Admin addresses array
     address[] public AdminAddresses;
-    mapping (address => uint) adminIndex;
-    mapping (address => bool) isAdmin;
+    mapping (address => uint) public adminIndex;
+    mapping (address => bool) public isAdmin;
 
     address[] public OwnerAddresses;
-    mapping (address => uint) OwnerIndex;
-    mapping (address => bool) isStoreOwner;
+    mapping (address => uint) public OwnerIndex;
+    mapping (address => bool) public isStoreOwner;
 
 
     /**
@@ -55,13 +55,18 @@ contract ManageOwner is Ownable, Pausable {
 
     /**
     * @dev Allows the contract owner to add a new Admin to the contract.
-    * @param _address The address to add as Admin.
+    * @param _address The address to remove as Admin.
     */
     function removeAdmin(address _address) public onlyOwner whenNotPaused validAddress(_address){
         require(isAdmin[_address] == true, "address is not admin");
         isAdmin[_address] = false;
         uint id = adminIndex[_address];
+        //Delete Admin
         delete AdminAddresses[id];
+        address replacer = AdminAddresses[AdminAddresses.length - 1];
+        AdminAddresses[id] = replacer;
+        AdminAddresses.length--;
+        
         emit LogAddressRemoved(_address, "Admin");
     }
 
@@ -79,13 +84,18 @@ contract ManageOwner is Ownable, Pausable {
 
     /**
     * @dev Allows an Admin to add a new Store Owner to the contract.
-    * @param _address The address to add as Owner.
+    * @param _address The address to remove as Owner.
     */
     function removeOwner(address _address) public onlyAdmin whenNotPaused validAddress(_address){
         require(isStoreOwner[_address] == true, "address is not store owner");
         isStoreOwner[_address] = false;
-        uint id = adminIndex[_address];
+        uint id = OwnerIndex[_address];
+        //Delete owner
         delete OwnerAddresses[id];
+        address replacer = OwnerAddresses[OwnerAddresses.length - 1];
+        OwnerAddresses[id] = replacer;
+        OwnerAddresses.length--;
+
         emit LogAddressRemoved(_address, "Owner");
     }
 
