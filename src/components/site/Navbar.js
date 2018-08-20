@@ -30,7 +30,8 @@ class Navbar extends Component {
     this.state = {
       isStoreOwner: false,
       isContractOwner: false,
-      isAdmin: false
+      isAdmin: false,
+      instance: null
     };
 
     marketplace.setProvider(this.props.web3.currentProvider);
@@ -42,6 +43,7 @@ class Navbar extends Component {
   checkAdminRigths = async () => {
     // TODO: determine if we are a store owner
     const marketplaceInstance = await marketplace.deployed();
+    this.setState({ instance: marketplaceInstance });
     let ownerAddress = await marketplaceInstance.owner.call();
     if (ownerAddress === this.props.account) {
       this.setState({ isContractOwner: true, isAdmin: true });
@@ -118,7 +120,17 @@ class Navbar extends Component {
           </nav>
           <div>
             <Switch>
-              <Route path="/" exact component={Home} />
+              <Route
+                path="/"
+                exact
+                render={() => (
+                  <Home
+                    web3={this.props.web3}
+                    account={this.props.account}
+                    instance={this.state.instance}
+                  />
+                )}
+              />
               <Route path="/about" exact component={About} />
               <Route path="/contact" exact component={Contact} />
               <Route path="/stores/:storeId" exact component={StoreDetails} />
@@ -127,7 +139,11 @@ class Navbar extends Component {
                 path="/manage-admins"
                 exact
                 render={() => (
-                  <Admin web3={this.props.web3} account={this.props.account} />
+                  <Admin
+                    web3={this.props.web3}
+                    account={this.props.account}
+                    instance={this.state.instance}
+                  />
                 )}
               />
               <SecretRoute
@@ -138,6 +154,7 @@ class Navbar extends Component {
                   <StoreOwner
                     web3={this.props.web3}
                     account={this.props.account}
+                    instance={this.state.instance}
                   />
                 )}
               />
@@ -149,6 +166,7 @@ class Navbar extends Component {
                   <AddStore
                     web3={this.props.web3}
                     account={this.props.account}
+                    instance={this.state.instance}
                   />
                 )}
               />

@@ -10,37 +10,65 @@ class Admin extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { adminList: [] };
+    this.state = { adminList: [], isSubmitting: false };
 
     marketplace.setProvider(this.props.web3.currentProvider);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadAdminList();
   }
 
-  componentDidUpdate() {
-    this.loadAdminList();
-  }
-
-  addAdmin = async address => {
-    const marketplaceInstance = await marketplace.deployed();
-    await marketplaceInstance.registerAdmin(address, {
-      from: this.props.account
-    });
+  addAdmin = address => {
+    this.setState({ isSubmitting: true });
+    this.props.instance.registerAdmin
+      .estimateGas(address, {
+        from: this.props.account
+      })
+      .then(estimatedGas => {
+        return this.props.instance.registerAdmin(address, {
+          from: this.props.account,
+          gas: estimatedGas + 1000
+        });
+      })
+      .then(receipt => {
+        console.log(receipt);
+        this.loadAdminList();
+      })
+      .catch(err => {
+        console.log(err);
+      })
+      .finally(() => {
+        this.setState({ isSubmitting: false });
+      });
   };
 
-  removeAdmin = async address => {
-    console.log(address);
-    const marketplaceInstance = await marketplace.deployed();
-    await marketplaceInstance.removeAdmin(address, {
-      from: this.props.account
-    });
+  removeAdmin = address => {
+    this.setState({ isSubmitting: true });
+    this.props.instance.removeAdmin
+      .estimateGas(address, {
+        from: this.props.account
+      })
+      .then(estimatedGas => {
+        return this.props.instance.removeAdmin(address, {
+          from: this.props.account,
+          gas: estimatedGas + 100000
+        });
+      })
+      .then(receipt => {
+        console.log(receipt);
+        this.loadAdminList();
+      })
+      .catch(err => {
+        console.log(err);
+      })
+      .finally(() => {
+        this.setState({ isSubmitting: false });
+      });
   };
 
   loadAdminList = async () => {
-    const marketplaceInstance = await marketplace.deployed();
-    let total = await marketplaceInstance.getAdminCount.call(
+    let total = await this.props.instance.getAdminCount.call(
       this.props.account
     );
 
@@ -48,7 +76,7 @@ class Admin extends Component {
     if (total.c[0]) {
       for (let i = 0; i < total; i++) {
         const id = i;
-        const address = await marketplaceInstance.AdminAddresses.call(i);
+        const address = await this.props.instance.AdminAddresses.call(i);
 
         const admin = {
           id,
@@ -64,7 +92,14 @@ class Admin extends Component {
 
   render() {
     let row = this.state.adminList.map(admin => {
-      return <AdminRow key={admin.id} data={admin} submit={this.removeAdmin} />;
+      return (
+        <AdminRow
+          key={admin.id}
+          data={admin}
+          submit={this.removeAdmin}
+          isSubmitting={this.state.isSubmitting}
+        />
+      );
     });
     return (
       <div>
@@ -75,8 +110,11 @@ class Admin extends Component {
 
         <main className="container">
           <h3>Add Admin</h3>
-          <AddForm submit={this.addAdmin} />
-          <br/>
+          <AddForm
+            submit={this.addAdmin}
+            isSubmitting={this.state.isSubmitting}
+          />
+          <br />
           <table className="table table-bordered">
             <thead className="thead-light">
               <tr>
@@ -102,6 +140,7 @@ const AdminRow = props => {
       <td>
         <button
           type="button"
+          disabled={props.isSubmitting}
           className="btn btn-danger"
           onClick={() => props.submit(props.data.address)}
         >

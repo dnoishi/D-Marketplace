@@ -15,28 +15,31 @@ class Home extends Component {
   }
 
   loadStores = async () => {
-    // ============== BEGIN: Function implementation here ================ //
+    let total = await this.props.instance.getStoreCount.call(
+      this.props.account
+    );
 
-    // TODO: We want to load the lists of stores that our contract has
-    // this.state.stores expects an array of objects with these attributes:
-    // {
-    //   id: "store Id",
-    //   idOwner: "owner address or id",
-    //   title: "token attribute",
-    //   description
-    //   metadataHash: "store attributes",
-    // }
+    const stores = [];
+    if (total.c[0]) {
+      for (let i = 0; i < total; i++) {
+        const id = i;
+        const ownerAddress = await this.props.instance.storeToOwner.call(i);
+        const productCount = await this.props.instance.storeProductCount.call(
+          i
+        );
+        const info = await this.props.instance.stores.call(i);
 
-    // Example:
-    const store = {
-      id: 1,
-      idOwner: 1,
-      title: "My Store",
-      description: "My sample store in the marketplace",
-      metadataHash: "METADATA"
-    };
-    const list = [store];
-    this.setState({ stores: list });
+        const store = {
+          id,
+          ownerAddress,
+          productCount,
+          ...info
+        };
+        stores.push(store);
+      }
+    }
+
+    this.setState({ stores });
   };
 
   render() {
@@ -48,7 +51,7 @@ class Home extends Component {
           subtitle="This is your descentralized marketplace!"
         />
         <div className="container">
-          <StoreList title="Marketplace" list={stores} />
+          <StoreList title="Marketplace" list={stores} web3={this.props.web3} />
         </div>
       </main>
     );

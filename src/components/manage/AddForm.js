@@ -41,6 +41,7 @@ class AddForm extends Component {
             <button
               type="submit"
               className="btn btn-primary mb-2"
+              disabled={this.props.isSubmitting}
               onClick={this.handleOnClick}
             >
               Add

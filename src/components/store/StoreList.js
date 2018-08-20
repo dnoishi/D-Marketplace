@@ -15,7 +15,7 @@ class StoreList extends Component {
         <h3>{title}</h3>
         <div className="row">
           {list.map((store, i) => (
-            <Store key={store.id} {...store} />
+            <Store key={store.id} {...store} web3={this.props.web3} />
           ))}
           {list.length === 0 ? <p>No stores available</p> : ""}
         </div>

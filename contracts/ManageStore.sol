@@ -18,7 +18,6 @@ contract ManageStore is ManageOwner {
     struct Store {
         bytes metadataHash; //IPFS Hash
         uint balance;
-        uint productCount;
     }
 
     Store[] public stores;
@@ -34,7 +33,7 @@ contract ManageStore is ManageOwner {
     
     Product[] public products;
     mapping(uint => uint) public productToStore; //product of store 
-
+    mapping (uint => uint) public storeProductCount;
     /*
     * Modifiers
     */
@@ -67,7 +66,7 @@ contract ManageStore is ManageOwner {
     * @param _metadata IPFS Hash with the store metadata.
     */
     function addStore(bytes _metadata) public onlyStoreOwner {
-        uint id = stores.push(Store({metadataHash: _metadata, balance: 0, productCount: 0})).sub(1);
+        uint id = stores.push(Store({metadataHash: _metadata, balance: 0 })).sub(1);
         storeToOwner[id] = msg.sender;
         ownerStoreCount[msg.sender].add(1);
         emit LogStoreAdded(msg.sender, id);
@@ -83,6 +82,7 @@ contract ManageStore is ManageOwner {
     function addProductToStore(uint _storeId, bytes _productMetadata, uint _price, uint _quantity) public onlyOwnerOf(_storeId){
         uint id = products.push(Product({metadataHash: _productMetadata, price: _price, quantity: _quantity})).sub(1);
         productToStore[id] = _storeId;
+        storeProductCount[_storeId].add(1);
         emit LogProductAdded(_storeId, id);
     }
 
@@ -96,7 +96,7 @@ contract ManageStore is ManageOwner {
         Product replacer = products[products.length - 1];
         products[_productId] = replacer;
         products.length--;
-
+        storeProductCount[_storeId].sub(1);
         emit LogProductRemoved(_storeId, _productId);
     }
 
@@ -137,6 +137,13 @@ contract ManageStore is ManageOwner {
         s.balance -= amountToSend; //remove amount from store reference
         address(msg.sender).transfer(amountToSend); //send it to function caller
         emit LogStoreWithdrawed(msg.sender, amountToSend);
+    }
+
+    /**
+    * @dev Allows to retrive the number of stores registered.
+    */
+    function getStoreCount() public view returns (uint){
+        return stores.length;
     }
     
 }

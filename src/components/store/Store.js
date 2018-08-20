@@ -18,7 +18,8 @@ class Store extends Component {
   }
 
   loadAttributes() {
-    // TODO: the only attribute we are interested to load is the image
+    // TODO: get props and send it to ipfs and get info
+    //const metadataHash = this.props.metadataHash;
     this.setState({ image: storeSample });
   }
 
