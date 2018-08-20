@@ -54,7 +54,7 @@ contract ManageOwner is Ownable, Pausable {
     }
 
     /**
-    * @dev Allows the contract owner to add a new Admin to the contract.
+    * @dev Allows the contract owner to remove a new Admin to the contract.
     * @param _address The address to remove as Admin.
     */
     function removeAdmin(address _address) public onlyOwner whenNotPaused validAddress(_address){
@@ -83,7 +83,7 @@ contract ManageOwner is Ownable, Pausable {
     }
 
     /**
-    * @dev Allows an Admin to add a new Store Owner to the contract.
+    * @dev Allows an Admin to remove a new Store Owner to the contract.
     * @param _address The address to remove as Owner.
     */
     function removeOwner(address _address) public onlyAdmin whenNotPaused validAddress(_address){

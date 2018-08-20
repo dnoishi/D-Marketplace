@@ -93,7 +93,7 @@ contract ManageStore is ManageOwner {
     */
     function removeProductFromStore(uint _storeId, uint _productId) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
         delete products[_productId];
-        Product replacer = products[products.length - 1];
+        Product storage replacer = products[products.length - 1];
         products[_productId] = replacer;
         products.length--;
         storeProductCount[_storeId].sub(1);
