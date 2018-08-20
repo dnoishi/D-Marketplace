@@ -62,7 +62,10 @@ class AddStore extends Component {
         });
       })
       .then(estimatedGas => {
-        return this.props.instance.addStore(attrHash, {
+        // TODO: Check if works correctly
+        let hexHash = this.props.web3.utils.toHex(attrHash);
+        console.log(hexHash);
+        return this.props.instance.addStore(hexHash, {
           from: this.props.account,
           gas: estimatedGas + 1000
         });

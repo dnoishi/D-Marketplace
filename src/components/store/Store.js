@@ -19,7 +19,8 @@ class Store extends Component {
 
   loadAttributes() {
     // TODO: get props and send it to ipfs and get info
-    //const metadataHash = this.props.metadataHash;
+    // const metadataHash = web3.utils.toAscii(this.props.metadataHash);
+    // console.log(metadataHash);
     this.setState({ image: storeSample });
   }
 
