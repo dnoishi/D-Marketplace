@@ -204,7 +204,7 @@ contract("Marketplace", accounts => {
 
     let event = marketplace.LogStoreWithdrawed();
     await event.watch((err, res) => {
-      amountWithdrawed = res.args._balance;
+      amountWithdrawed = res.args._balance.toNumber();
       eventEmitted = true;
     });
 

@@ -6,34 +6,74 @@ class StoreDetails extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      products: []
+      products: [],
+      isOwner: false,
+      id: null,
+      storeName: "",
+      description: "",
+      balance: null,
+      productCount: null,
+      web3: null,
+      instance: null
     };
   }
 
   componentDidMount() {
-    /*const {
-      match: { params }
-    } = this.props;*/
+    const { store, account, web3, instance } = this.props.location.state;
+    if (store.ownerAddress === account) this.setState({ isOwner: true });
 
-    //TODO: Get store details from our contract and display it here!
-    // Also get the list of products of this store
-    // Store id comes from ${params.storeId}
+    this.setState({
+      id: store.id,
+      storeName: store.storeName,
+      description: store.description,
+      balance: store.balance,
+      productCount: store.productCount,
+      web3: web3,
+      instance: instance
+    });
 
-    //loading sample products
     this.loadProducts();
   }
 
   loadProducts = async () => {
-    // TODO: Load the lists of stores that our contract has
-    // this.state.stores expects an array of objects with these attributes:
-    // {
-    //   id: "store Id",
-    //   idOwner: "owner address or id",
-    //   title: "token attribute",
-    //   description
-    //   metadataHash: "store attributes",
-    // }
+    //let total = this.state.productCount;
+    /*if (total) {
+      for (let i = 0; i < total; i++) {
+        const id = await this.state.instance.productToStore.call(i);
+      }
+    }
 
+    /*
+      let total = await this.props.instance.getStoreCount.call(
+      this.props.account
+    );
+
+    const stores = [];
+    if (total.c[0]) {
+      for (let i = 0; i < total; i++) {
+        const id = i;
+        const ownerAddress = await this.props.instance.storeToOwner.call(i);
+        const productCountInf = await this.props.instance.storeProductCount.call(
+          i
+        );
+        const productCount = productCountInf.c[0];
+        const info = await this.props.instance.stores.call(i);
+        const metadataHash = this.props.web3.toAscii(info[0]);
+        const balance = info[1].c[0];
+
+        const store = {
+          id,
+          ownerAddress,
+          productCount,
+          metadataHash,
+          balance
+        };
+        stores.push(store);
+      }
+    }
+
+    this.setState({ stores });
+    */
     // Example:
     const product = {
       id: 1,
@@ -47,10 +87,10 @@ class StoreDetails extends Component {
   };
 
   render() {
-    const { products } = this.state;
+    const { products, storeName, description, balance } = this.state;
     return (
       <div>
-        <Jumbotron title="Store Name" subtitle="Store Description!" />
+        <Jumbotron title={storeName} subtitle={description} />
         <div className="container">
           <ProductList title="Products" list={products} />
         </div>

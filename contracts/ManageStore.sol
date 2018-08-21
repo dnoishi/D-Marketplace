@@ -68,7 +68,7 @@ contract ManageStore is ManageOwner {
     function addStore(bytes _metadata) public onlyStoreOwner {
         uint id = stores.push(Store({metadataHash: _metadata, balance: 0 })).sub(1);
         storeToOwner[id] = msg.sender;
-        ownerStoreCount[msg.sender].add(1);
+        ownerStoreCount[msg.sender]++;
         emit LogStoreAdded(msg.sender, id);
     }
 
@@ -82,7 +82,7 @@ contract ManageStore is ManageOwner {
     function addProductToStore(uint _storeId, bytes _productMetadata, uint _price, uint _quantity) public onlyOwnerOf(_storeId){
         uint id = products.push(Product({metadataHash: _productMetadata, price: _price, quantity: _quantity})).sub(1);
         productToStore[id] = _storeId;
-        storeProductCount[_storeId].add(1);
+        storeProductCount[_storeId]++;
         emit LogProductAdded(_storeId, id);
     }
 
@@ -96,7 +96,7 @@ contract ManageStore is ManageOwner {
         Product storage replacer = products[products.length - 1];
         products[_productId] = replacer;
         products.length--;
-        storeProductCount[_storeId].sub(1);
+        storeProductCount[_storeId]++;
         emit LogProductRemoved(_storeId, _productId);
     }
 

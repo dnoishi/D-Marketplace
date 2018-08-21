@@ -9,13 +9,19 @@ class StoreList extends Component {
     };
   }
   render() {
-    const { title, list } = this.props;
+    const { title, list, web3, account, instance } = this.props;
     return (
       <div>
         <h3>{title}</h3>
         <div className="row">
           {list.map((store, i) => (
-            <Store key={store.id} {...store} web3={this.props.web3} />
+            <Store
+              key={store.id}
+              {...store}
+              web3={web3}
+              account={account}
+              instance={instance}
+            />
           ))}
           {list.length === 0 ? <p>No stores available</p> : ""}
         </div>

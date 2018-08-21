@@ -10,8 +10,10 @@ class Home extends Component {
     };
   }
 
-  componentDidMount() {
-    this.loadStores();
+  componentDidUpdate(prevProps) {
+    if (this.props.instance !== prevProps.instance) {
+      this.loadStores();
+    }
   }
 
   loadStores = async () => {
@@ -24,16 +26,20 @@ class Home extends Component {
       for (let i = 0; i < total; i++) {
         const id = i;
         const ownerAddress = await this.props.instance.storeToOwner.call(i);
-        const productCount = await this.props.instance.storeProductCount.call(
+        const productCountInf = await this.props.instance.storeProductCount.call(
           i
         );
+        const productCount = productCountInf.c[0];
         const info = await this.props.instance.stores.call(i);
+        const metadataHash = this.props.web3.toAscii(info[0]);
+        const balance = info[1].c[0];
 
         const store = {
           id,
           ownerAddress,
           productCount,
-          ...info
+          metadataHash,
+          balance
         };
         stores.push(store);
       }
@@ -44,6 +50,7 @@ class Home extends Component {
 
   render() {
     const { stores } = this.state;
+    const { web3, account, instance } = this.props;
     return (
       <main role="main">
         <Jumbotron
@@ -51,7 +58,13 @@ class Home extends Component {
           subtitle="This is your descentralized marketplace!"
         />
         <div className="container">
-          <StoreList title="Marketplace" list={stores} web3={this.props.web3} />
+          <StoreList
+            title="Marketplace"
+            list={stores}
+            web3={web3}
+            account={account}
+            instance={instance}
+          />
         </div>
       </main>
     );

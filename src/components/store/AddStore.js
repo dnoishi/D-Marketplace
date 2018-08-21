@@ -56,20 +56,14 @@ class AddStore extends Component {
         return ipfs.files.add(data);
       })
       .then(attributesHash => {
-        console.log("ipfs", attributesHash);
-        attrHash = attributesHash;
-        return this.props.instance.addStore.estimateGas(attributesHash, {
+        console.log("ipfs", attributesHash[0].hash);
+        attrHash = attributesHash[0].hash;
+        return this.props.instance.addStore.estimateGas(attrHash, {
           from: this.props.account
         });
       })
       .then(estimatedGas => {
-        // TODO: Check if works correctly
-        console.log(estimatedGas);
-        let hexHash = this.props.web3.utils.toHex(attrHash);
-        let ipfsAgain = this.props.web3.utils.toAscii(hexHash);
-        console.log("hex hash", hexHash);
-        console.log("ipfs again", ipfsAgain)
-        
+        let hexHash = this.props.web3.toHex(attrHash);
         return this.props.instance.addStore(hexHash, {
           from: this.props.account,
           gas: estimatedGas + 1000
