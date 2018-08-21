@@ -18,6 +18,7 @@ contract ManageStore is ManageOwner {
     struct Store {
         bytes metadataHash; //IPFS Hash
         uint balance;
+        uint[] productsIds;
     }
 
     Store[] public stores;
@@ -32,8 +33,7 @@ contract ManageStore is ManageOwner {
     }
     
     Product[] public products;
-    mapping(uint => uint) public productToStore; //product of store 
-    mapping (uint => uint) public storeProductCount;
+    mapping(uint => uint) public productToStore; //product of store
     /*
     * Modifiers
     */
@@ -66,7 +66,7 @@ contract ManageStore is ManageOwner {
     * @param _metadata IPFS Hash with the store metadata.
     */
     function addStore(bytes _metadata) public onlyStoreOwner {
-        uint id = stores.push(Store({metadataHash: _metadata, balance: 0 })).sub(1);
+        uint id = stores.push(Store({metadataHash: _metadata, balance: 0, productsIds: new uint[](0) })).sub(1);
         storeToOwner[id] = msg.sender;
         ownerStoreCount[msg.sender]++;
         emit LogStoreAdded(msg.sender, id);
@@ -81,8 +81,10 @@ contract ManageStore is ManageOwner {
     */
     function addProductToStore(uint _storeId, bytes _productMetadata, uint _price, uint _quantity) public onlyOwnerOf(_storeId){
         uint id = products.push(Product({metadataHash: _productMetadata, price: _price, quantity: _quantity})).sub(1);
+        Store storage s = stores[_storeId];
+        uint index = s.productsIds.length++;
+        s.productsIds[index] = id;
         productToStore[id] = _storeId;
-        storeProductCount[_storeId]++;
         emit LogProductAdded(_storeId, id);
     }
 
@@ -92,11 +94,23 @@ contract ManageStore is ManageOwner {
     * @param _productId id of the product to be removed.
     */
     function removeProductFromStore(uint _storeId, uint _productId) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
+        //Remove product
         delete products[_productId];
         Product storage replacer = products[products.length - 1];
         products[_productId] = replacer;
         products.length--;
-        storeProductCount[_storeId]++;
+        
+        //Remove id of product from store
+        Store storage s = stores[_storeId];
+        for(uint index = 0; index < s.productsIds.length; index++){
+            if(s.productsIds[index] == _productId){
+                delete s.productsIds[index];
+                s.productsIds[index] = _productId;
+                s.productsIds.length--;
+                break;
+            }
+        }
+        
         emit LogProductRemoved(_storeId, _productId);
     }
 
@@ -144,6 +158,14 @@ contract ManageStore is ManageOwner {
     */
     function getStoreCount() public view returns (uint){
         return stores.length;
+    }
+    
+    function getStoreProducts(uint _storeId) public view returns (uint[]){
+        return stores[_storeId].productsIds;
+    }
+    
+    function getStoreProductsCount(uint _storeId) public view returns (uint){
+        return stores[_storeId].productsIds.length;
     }
     
 }

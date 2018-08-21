@@ -26,7 +26,8 @@ class Home extends Component {
       for (let i = 0; i < total; i++) {
         const id = i;
         const ownerAddress = await this.props.instance.storeToOwner.call(i);
-        const productCountInf = await this.props.instance.storeProductCount.call(
+        // TODO: Probar de nuevo luego del cambio de funcion
+        const productCountInf = await this.props.instance.getStoreProductsCount.call(
           i
         );
         const productCount = productCountInf.c[0];
