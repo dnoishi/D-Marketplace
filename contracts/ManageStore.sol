@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./ManageOwner.sol";
 
-
+/** @title Manage Store. */
 contract ManageStore is ManageOwner {
 
     // State variables of the contract
@@ -34,9 +34,6 @@ contract ManageStore is ManageOwner {
     
     Product[] public products;
     mapping(uint => uint) public productToStore; //product of store
-    /*
-    * Modifiers
-    */
 
     /**
     * @dev Throws if called by any account other than the admins.
@@ -160,10 +157,16 @@ contract ManageStore is ManageOwner {
         return stores.length;
     }
     
+    /**
+    * @dev Allows to retrive the products id of a specific store.
+    */
     function getStoreProducts(uint _storeId) public view returns (uint[]){
         return stores[_storeId].productsIds;
     }
     
+    /**
+    * @dev Allows to retrive the number of products of a specific store.
+    */
     function getStoreProductsCount(uint _storeId) public view returns (uint){
         return stores[_storeId].productsIds.length;
     }

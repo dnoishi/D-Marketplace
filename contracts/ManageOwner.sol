@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
+/** @title Manage Owner. */
 contract ManageOwner is Ownable, Pausable {
 
     // State variables of the contract

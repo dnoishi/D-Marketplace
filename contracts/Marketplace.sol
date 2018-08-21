@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./ManageStore.sol";
 
+/** @title Marketplace. */
 contract Marketplace is ManageStore {
     
     
@@ -21,11 +22,6 @@ contract Marketplace is ManageStore {
         require(p.quantity > 0, "Product unavaliable");
         require(msg.value >= p.price, "need to pay according");
 
-        //Check if user pay more than need it
-        uint refund = msg.value - p.price;
-        if(msg.value > 0)
-            msg.sender.transfer(refund);
-
         //Remove the quantity from product
         p.quantity -= 1;
 
@@ -33,6 +29,12 @@ contract Marketplace is ManageStore {
         uint storeId = productToStore[_productId];
         Store storage s = stores[storeId];
         s.balance += p.price;
+
+        //Check if user pay more than need it
+        uint refund = msg.value - p.price;
+        if(msg.value > 0)
+            msg.sender.transfer(refund);
+
         emit LogProductSold(_productId, p.price, msg.sender);
     }
     
