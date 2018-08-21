@@ -4,15 +4,15 @@
 
 D-Marketplace is an Ethereum Decentralized Application (DApp) that enables to easily set up an online marketplace that runs on the blockchain.
 
-Once deployed the **marketplace owner** can easily authorize specific addresses to have different roles such as **administrator** or **store owner**.
+Once deployed, the **marketplace owner** can easily authorize specific addresses to have different roles such as **administrator** or **store owner**.
 
 The marketplace can be managed by a group of **Administrators** that the marketplace owner can easily set up.
 
-An approved administrator opens the web app. The web app reads the address and identifies that the user is an admin, showing them admin only functions, such as managing **store owners**. An administrator can add or remove an address from the list of approved store owners.
+Opening the web app as an approved administrator displays only admin functionalities, such as managing **store owners**. Within this view, they can see a list of approved store owners, having the options to add or remove addresses to the list. 
 
-An approved store owner opens the web app. The web app recognizes their address and identifies them as a store owner. They are shown the store owner functions. They can create a new storefront that will be displayed on the marketplace. They can also see the storefronts that they have already created. They can click on a storefront to manage it. They can add/remove products to the storefront or change any of the products’ prices. They can also withdraw any funds that the store has collected from sales.
+On the other hand, opening the web app as an approved store owner displays only store owner functionalities, such as managing its stores. Within this view, they can create new storefronts that will be displayed in the marketplace once created. Also, they can view the list of created storefronts and click on each one to manage it. Once managing a specific storefront, the store owners can add, update, or remove products to the storefront. The product update functionality is limited to only update the product price and quantity. Finally, they can withdraw all the funds collected from sales of a specific store.
 
-When a user that isn't either store owner or administrator opens the website, the site recognises it as a **shopper** and displays all the stores available on the marketplace, when the shopper clicks on a storefront, it will take them to a product page where they can see the store's available products, including their price and quantity. Shoppers can purchase a product, which will debit their account and send it to the store.
+Every time a user that isn't either the store owner or administrator opens the website, it is recognized as a **shopper** and the site displays the stores available on the marketplace. Whenever the shopper clicks on a storefront, it will take them to a product page where they can see the store's available products, including their price and quantity. Shoppers can purchase a product, starting a transaction between him and the store.
 
 ### Tech Stack
 
