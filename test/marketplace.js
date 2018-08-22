@@ -11,7 +11,7 @@ contract("Marketplace", accounts => {
 
   let product_id;
   let store_id;
-  let added_address;
+  let added_address = '';
 
   const price = web3.toWei(1, "ether");
   const quantity = 10;
