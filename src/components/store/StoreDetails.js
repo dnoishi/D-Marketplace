@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ProductList from "../product/ProductList";
 import Jumbotron from "../../components/site/Jumbotron";
+import { Link } from "react-router-dom";
 
 class StoreDetails extends Component {
   constructor(props) {
@@ -12,86 +13,71 @@ class StoreDetails extends Component {
       storeName: "",
       description: "",
       balance: null,
-      productCount: null,
-      web3: null,
-      instance: null
+      productCount: null
     };
   }
 
   componentDidMount() {
-    const { store, account, web3, instance } = this.props.location.state;
-    if (store.ownerAddress === account) this.setState({ isOwner: true });
+    const { store } = this.props.location.state;
+    if (store.ownerAddress === this.props.account)
+      this.setState({ isOwner: true });
 
     this.setState({
       id: store.id,
       storeName: store.storeName,
       description: store.description,
-      balance: store.balance,
-      productCount: store.productCount,
-      web3: web3,
-      instance: instance
+      balance: store.balance
     });
-
-    this.loadProducts();
+    if (this.props.instance !== null) {
+      this.loadProducts(store.id);
+    }
   }
 
-  loadProducts = async () => {
-    //let total = this.state.productCount;
-    /*if (total) {
-      for (let i = 0; i < total; i++) {
-        const id = await this.state.instance.productToStore.call(i);
-      }
+  componentDidUpdate(prevProps) {
+    if (this.props.instance !== prevProps.instance) {
+      const { store } = this.props.location.state;
+      this.loadProducts(store.id);
+    }
+  }
+
+  loadProducts = async id => {
+    const products = [];
+    let productsOfStore = await this.props.instance.getStoreProducts.call(id);
+    for (const element of productsOfStore) {
+      const id = element.c[0];
+      const info = await this.props.instance.products.call(id);
+      const metadataHash = this.props.web3.toAscii(info[0]);
+      const price = info[1].c[0];
+      const quantity = info[1].c[0];
+
+      const product = {
+        id,
+        metadataHash,
+        price,
+        quantity
+      };
+      products.push(product);
     }
 
-    /*
-      let total = await this.props.instance.getStoreCount.call(
-      this.props.account
-    );
-
-    const stores = [];
-    if (total.c[0]) {
-      for (let i = 0; i < total; i++) {
-        const id = i;
-        const ownerAddress = await this.props.instance.storeToOwner.call(i);
-        const productCountInf = await this.props.instance.storeProductCount.call(
-          i
-        );
-        const productCount = productCountInf.c[0];
-        const info = await this.props.instance.stores.call(i);
-        const metadataHash = this.props.web3.toAscii(info[0]);
-        const balance = info[1].c[0];
-
-        const store = {
-          id,
-          ownerAddress,
-          productCount,
-          metadataHash,
-          balance
-        };
-        stores.push(store);
-      }
-    }
-
-    this.setState({ stores });
-    */
-    // Example:
-    const product = {
-      id: 1,
-      title: "My Product",
-      description: "My sample product in the marketplace",
-      price: 3,
-      metadataHash: "METADATA"
-    };
-    const list = [product];
-    this.setState({ products: list });
+    this.setState({ products });
   };
 
   render() {
-    const { products, storeName, description, balance } = this.state;
+    const { id, products, storeName, description, isOwner } = this.state;
     return (
       <div>
         <Jumbotron title={storeName} subtitle={description} />
         <div className="container">
+          <Link
+            to={{
+              pathname: `/add-product`,
+              state: { id, isOwner, storeName }
+            }}
+            className="btn btn-primary"
+          >
+            Add Product
+          </Link>
+          <br />
           <ProductList title="Products" list={products} />
         </div>
       </div>

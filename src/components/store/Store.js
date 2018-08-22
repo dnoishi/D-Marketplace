@@ -19,8 +19,6 @@ class Store extends Component {
   }
 
   loadAttributes() {
-    // TODO: get props and send it to ipfs and get info
-    // const metadataHash = this.props.metadataHash;
     ipfs.files.get(this.props.metadataHash).then(r => {
       const jsonMetadata = JSON.parse(r[0].content);
       this.setState({
@@ -32,23 +30,13 @@ class Store extends Component {
   }
 
   render() {
-    const {
-      id,
-      ownerAddress,
-      productCount,
-      balance,
-      account,
-      instance,
-      web3
-    } = this.props;
+    const { id, ownerAddress, balance } = this.props;
     const { storeName, description, image } = this.state;
     const store = {
       id,
       storeName,
       description,
-      image,
       ownerAddress,
-      productCount,
       balance
     };
     return (
@@ -60,8 +48,8 @@ class Store extends Component {
             <p className="card-text">{description}</p>
             <Link
               to={{
-                pathname: `/stores/${id}`,
-                state: { store, account, instance, web3 }
+                pathname: `/store/${id}`,
+                state: { store }
               }}
               className="btn btn-primary"
             >

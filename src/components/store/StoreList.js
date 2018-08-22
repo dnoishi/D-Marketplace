@@ -9,7 +9,7 @@ class StoreList extends Component {
     };
   }
   render() {
-    const { title, list, web3, account, instance } = this.props;
+    const { title, list } = this.props;
     return (
       <div>
         <h3>{title}</h3>
@@ -18,9 +18,6 @@ class StoreList extends Component {
             <Store
               key={store.id}
               {...store}
-              web3={web3}
-              account={account}
-              instance={instance}
             />
           ))}
           {list.length === 0 ? <p>No stores available</p> : ""}

@@ -13,6 +13,7 @@ import StoreDetails from "../store/StoreDetails";
 import AddStore from "../store/AddStore";
 import Admin from "../manage/Admin";
 import StoreOwner from "../manage/StoreOwner";
+import AddProduct from "../product/AddProduct";
 import Marketplace from "../../../build/contracts/Marketplace.json";
 
 import "./Navbar.css";
@@ -133,7 +134,18 @@ class Navbar extends Component {
               />
               <Route path="/about" exact component={About} />
               <Route path="/contact" exact component={Contact} />
-              <Route path="/stores/:storeId" exact component={StoreDetails} />
+              <Route
+                exact
+                path="/store/:storeId"
+                render={props => (
+                  <StoreDetails
+                    {...props}
+                    web3={this.props.web3}
+                    account={this.props.account}
+                    instance={this.state.instance}
+                  />
+                )}
+              />
               <SecretRoute
                 isAuth={isContractOwner}
                 path="/manage-admins"
@@ -164,6 +176,19 @@ class Navbar extends Component {
                 exact
                 render={() => (
                   <AddStore
+                    web3={this.props.web3}
+                    account={this.props.account}
+                    instance={this.state.instance}
+                  />
+                )}
+              />
+              <SecretRoute
+                isAuth={isStoreOwner}
+                path="/add-product"
+                exact
+                render={props=> (
+                  <AddProduct
+                  {...props}
                     web3={this.props.web3}
                     account={this.props.account}
                     instance={this.state.instance}
