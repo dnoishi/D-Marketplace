@@ -1,18 +1,22 @@
 var ManageOwner = artifacts.require("./ManageOwner.sol");
+const { assertRevert } = require('./helpers/assertRevert');
 
 contract("ManageOwner", accounts => {
 
   const owner = accounts[0];
   const admin = accounts[1];
   const storeOwner = accounts[2];
-
-
+  const other = accounts[3];
   let added_address;
-
 
   it("sets an owner", async () => {
     const manageOwner = await ManageOwner.new();
     assert.equal(await manageOwner.owner.call(), owner);
+  });
+
+  it("only owner can add admin", async () => {
+    const manageOwner = await ManageOwner.deployed();
+    await assertRevert(manageOwner.registerAdmin(admin, { from: storeOwner }));
   });
 
   it("contract owner can add an admin", async () => {
@@ -40,6 +44,11 @@ contract("ManageOwner", accounts => {
     );
   });
 
+  it("only owner and admins can add store owner", async () => {
+    const manageOwner = await ManageOwner.deployed();
+    await assertRevert(manageOwner.registerOwner(admin, { from: other }));
+  });
+
   it("admin can add a store owner", async () => {
     const manageOwner = await ManageOwner.deployed();
 
@@ -63,6 +72,11 @@ contract("ManageOwner", accounts => {
       true,
       "adding a store owner should emit a Log Address Added event"
     );
+  });
+
+  it("can't add existing store owner", async () => {
+    const manageOwner = await ManageOwner.deployed();
+    await assertRevert(manageOwner.registerOwner(storeOwner, { from: owner }));
   });
 
 });

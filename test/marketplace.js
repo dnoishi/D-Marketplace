@@ -1,134 +1,33 @@
 var Marketplace = artifacts.require("./Marketplace.sol");
+const { assertRevert } = require('./helpers/assertRevert');
 
 contract("Marketplace", accounts => {
+
   const owner = accounts[0];
-  const admin = accounts[1];
-  const storeOwner = accounts[2];
-  const buyer = accounts[3];
-  const emptyAddress = "0x0000000000000000000000000000000000000000";
-  const emptyString = "";
+  const storeOwner = accounts[1];
+  const buyer = accounts[2];
+  const other = accounts[3];
+
   const ipfsHash = 0x017dfd85d4f6cb4dcd715a88101f7b1f06cd1e009b2327a0809d01eb9c91f231;
-
-  let product_id;
-  let store_id;
-  let added_address = '';
-
-  const price = web3.toWei(1, "ether");
+  const price = web3.toWei(2, "ether");
   const quantity = 10;
+  const storeId = 0;
+  const productId = 0;
 
-  it("sets an owner", async () => {
-    const marketplace = await Marketplace.new();
-    assert.equal(await marketplace.owner.call(), owner);
-  });
+  let storeA = '';
+  let storeB = '';
 
-  it("contract owner can add an admin", async () => {
+  it("need to send correct value to buy product", async () => {
     const marketplace = await Marketplace.deployed();
+    let amount = web3.toWei(1, "ether");
 
-    let eventEmitted = false;
-
-    let event = marketplace.LogAddressAdded();
-    await event.watch((err, res) => {
-      added_address = res.args._address;
-      eventEmitted = true;
-    });
-
-    await marketplace.registerAdmin(admin, { from: owner });
-
-    assert.equal(
-      added_address,
-      admin,
-      "the address of the last added admin does not match the expected value"
-    );
-    assert.equal(
-      eventEmitted,
-      true,
-      "adding an admin should emit a Log Address Added event"
-    );
-  });
-
-  it("admin can add a store owner", async () => {
-    const marketplace = await Marketplace.deployed();
-
-    let eventEmitted = false;
-
-    let event = marketplace.LogAddressAdded();
-    await event.watch((err, res) => {
-      added_address = res.args._address;
-      eventEmitted = true;
-    });
-
-    await marketplace.registerOwner(storeOwner, { from: admin });
-
-    assert.equal(
-      added_address,
-      storeOwner,
-      "the address of the last added store owner does not match the expected value"
-    );
-    assert.equal(
-      eventEmitted,
-      true,
-      "adding a store owner should emit a Log Address Added event"
-    );
-  });
-
-  it("store owner can add a store front", async () => {
-    const marketplace = await Marketplace.deployed();
-
-    let eventEmitted = false;
-    let expectedId = 0;
-
-    let event = marketplace.LogStoreAdded();
-    await event.watch((err, res) => {
-      added_address = res.args._owner;
-      store_id = res.args._storeId;
-      eventEmitted = true;
-    });
-
+    await marketplace.registerOwner(storeOwner, { from: owner });
     await marketplace.addStore(ipfsHash, { from: storeOwner });
-
-    assert.equal(
-      added_address,
-      storeOwner,
-      "the owner of the last added store does not match the expected value"
-    );
-    assert.equal(
-      store_id,
-      expectedId,
-      "the storeId of the last added store does not match the expected value"
-    );
-    assert.equal(
-      eventEmitted,
-      true,
-      "adding a store should emit a Log Store Added event"
-    );
-  });
-
-  it("store owner can add a product to the store", async () => {
-    const marketplace = await Marketplace.deployed();
-
-    let eventEmitted = false;
-    let expectedId = 0;
-
-    let event = marketplace.LogProductAdded();
-    await event.watch((err, res) => {
-      product_id = res.args._productId;
-      eventEmitted = true;
-    });
-
-    await marketplace.addProductToStore(store_id, ipfsHash, price, quantity, {
+    await marketplace.addProductToStore(storeId, ipfsHash, price, quantity, {
       from: storeOwner
     });
 
-    assert.equal(
-      product_id,
-      expectedId,
-      "the productId of the last added product does not match the expected value"
-    );
-    assert.equal(
-      eventEmitted,
-      true,
-      "adding a product should emit a Log Product Added event"
-    );
+    await assertRevert(marketplace.buyProduct(productId, { from: buyer, value: amount }));
   });
 
   it("buyer can buy a product from the store", async () => {
@@ -138,13 +37,13 @@ contract("Marketplace", accounts => {
     let expectedBuyer;
     let amount = web3.toWei(2, "ether");
 
-    let storeb = await marketplace.stores.call(store_id);
+    storeB = await marketplace.stores.call(storeId);
 
     let buyerBalanceBefore = await web3.eth.getBalance(buyer).toNumber();
     let contractBalanceBefore = await web3.eth
       .getBalance(marketplace.address)
       .toNumber();
-    let storeBalanceBefore = storeb[1].toNumber();
+    let storeBalanceBefore = storeB[1].toNumber();
 
     let event = marketplace.LogProductSold();
     await event.watch((err, res) => {
@@ -152,14 +51,14 @@ contract("Marketplace", accounts => {
       eventEmitted = true;
     });
 
-    await marketplace.buyProduct(product_id, { from: buyer, value: amount });
+    await marketplace.buyProduct(productId, { from: buyer, value: amount });
 
     let buyerBalanceAfter = await web3.eth.getBalance(buyer).toNumber();
     let contractBalanceAfter = await web3.eth
       .getBalance(marketplace.address)
       .toNumber();
-    let storea = await marketplace.stores.call(store_id);
-    let storeBalanceAfter = storea[1].toNumber();
+    storeA = await marketplace.stores.call(storeId);
+    let storeBalanceAfter = storeA[1].toNumber();
 
     assert.equal(
       expectedBuyer,
@@ -188,6 +87,19 @@ contract("Marketplace", accounts => {
     );
   });
 
+  it("store owner can withdraw only its store balance", async () => {
+    const marketplace = await Marketplace.deployed();
+    let other_store_id = 1;
+    
+    await assertRevert(marketplace.withdrawStoreFunds(other_store_id, { from: storeOwner }));
+  });
+
+  it("only store owner can withdraw its store balance", async () => {
+    const marketplace = await Marketplace.deployed();
+    await assertRevert(marketplace.withdrawStoreFunds(storeId, { from: other }));
+  });
+
+
   it("store owner can withdraw a store balance", async () => {
     const marketplace = await Marketplace.deployed();
 
@@ -199,8 +111,8 @@ contract("Marketplace", accounts => {
     let contractBalanceBefore = await web3.eth
       .getBalance(marketplace.address)
       .toNumber();
-    let storeb = await marketplace.stores.call(store_id);
-    let storeBalanceBefore = storeb[1].toNumber();
+    storeB = await marketplace.stores.call(storeId);
+    let storeBalanceBefore = storeB[1].toNumber();
 
     let event = marketplace.LogStoreWithdrawed();
     await event.watch((err, res) => {
@@ -208,14 +120,14 @@ contract("Marketplace", accounts => {
       eventEmitted = true;
     });
 
-    await marketplace.withdrawStoreFunds(store_id, { from: storeOwner });
+    await marketplace.withdrawStoreFunds(storeId, { from: storeOwner });
 
     let ownerBalanceAfter = await web3.eth.getBalance(storeOwner).toNumber();
     let contractBalanceAfter = await web3.eth
       .getBalance(marketplace.address)
       .toNumber();
-    let storea = await marketplace.stores.call(store_id);
-    let storeBalanceAfter = storea[1].toNumber();
+    storeA = await marketplace.stores.call(storeId);
+    let storeBalanceAfter = storeA[1].toNumber();
 
     assert.equal(
       amountWithdrawed,
