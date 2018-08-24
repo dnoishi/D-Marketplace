@@ -8,14 +8,15 @@ class ProductList extends Component {
       isSubmitting: false
     };
   }
+
   render() {
-    const { title, list } = this.props;
+    const { title, list, isOwner } = this.props;
     return (
       <div>
         <h3>{title}</h3>
         <div className="row">
           {list.map((product, i) => (
-            <Product key={product.id} {...product} />
+            <Product key={product.id} {...product} isOwner={isOwner}/>
           ))}
           {list.length === 0 ? <p>No products available</p> : ""}
         </div>

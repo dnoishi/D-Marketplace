@@ -171,4 +171,19 @@ contract ManageStore is ManageOwner {
         return stores[_storeId].productsIds.length;
     }
     
+    /**
+    * @dev Allows a to retrieve an owner's stores.
+    * @param _owner owner address.
+    */
+    function getStoresByOwner(address _owner) external view returns (uint[]){
+        uint[] memory result = new uint[](ownerStoreCount[_owner]);
+        uint counter = 0;
+        for (uint i = 0; i < stores.length; i++){
+            if(storeToOwner[i] == _owner){
+                result[counter] = i;
+                counter++;
+            }
+        }
+        return result;
+    }
 }

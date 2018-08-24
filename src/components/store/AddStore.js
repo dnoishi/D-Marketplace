@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Jumbotron from "../../components/site/Jumbotron";
 import ipfs from "../../utils/ipfs";
+import { Redirect } from 'react-router-dom';
 
 class AddStore extends Component {
   constructor(props) {
@@ -9,7 +10,8 @@ class AddStore extends Component {
       isSubmitting: false,
       buffer: null,
       storeName: "",
-      description: ""
+      description: "",
+      toHome: false
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -80,15 +82,19 @@ class AddStore extends Component {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false });
+        this.setState({ isSubmitting: false,
+          toHome: true });
       });
   }
 
   render() {
+    if (this.state.toHome === true) {
+      return <Redirect to='/' />
+    }
     return (
       <div>
         <Jumbotron title="Add Store" subtitle="Add store to the marketplace." />
-        <form className="container">
+        <form className="container-fluid">
           <div className="form-group col-md-6">
             <label htmlFor="storeName">Store Name</label>
             <input

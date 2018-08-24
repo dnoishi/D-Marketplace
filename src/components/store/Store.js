@@ -8,14 +8,15 @@ class Store extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      storeName: "",
-      description: "",
-      image: ""
+      storeName: '',
+      description: '',
+      image: '',
+      btnText: 'See Products'
     };
   }
 
   componentDidMount() {
-    this.loadAttributes();
+      this.loadAttributes();
   }
 
   loadAttributes() {
@@ -27,16 +28,20 @@ class Store extends Component {
         image: jsonMetadata.image
       });
     });
+
+    if(this.props.isStoreOwner){
+      this.setState({ btnText: 'Manage Store' });
+    }
   }
 
   render() {
-    const { id, ownerAddress, balance } = this.props;
-    const { storeName, description, image } = this.state;
+    const { id, isStoreOwner, balance } = this.props;
+    const { storeName, description, image, btnText } = this.state;
     const store = {
       id,
       storeName,
+      isStoreOwner,
       description,
-      ownerAddress,
       balance
     };
     return (
@@ -53,7 +58,7 @@ class Store extends Component {
               }}
               className="btn btn-primary"
             >
-              Go somewhere
+              {btnText}
             </Link>
           </div>
         </div>

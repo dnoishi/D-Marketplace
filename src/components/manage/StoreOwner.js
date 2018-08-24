@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import AddForm from "./AddForm";
-import Jumbotron from "../../components/site/Jumbotron";
 
 class StoreOwner extends Component {
   constructor(props) {
@@ -11,6 +10,12 @@ class StoreOwner extends Component {
 
   componentDidMount() {
     this.loadOwnerList();
+  }
+
+  componentWillUpdate(prevState){
+    if(this.state.ownerList !== prevState.ownerList){
+      this.loadOwnerList();
+    }
   }
 
   addOwner = address => {
@@ -27,6 +32,7 @@ class StoreOwner extends Component {
       })
       .then(receipt => {
         console.log(receipt);
+        console.log(this);
         this.loadOwnerList();
       })
       .catch(err => {
@@ -96,13 +102,8 @@ class StoreOwner extends Component {
     });
     return (
       <div>
-        <Jumbotron
-          title="Manage Owners"
-          subtitle="Add owner to the marketplace."
-        />
-
         <main className="container">
-          <h3>Add Owner</h3>
+          <h3>Add Store Owner</h3>
           <AddForm
             submit={this.addOwner}
             isSubmitting={this.state.isSubmitting}

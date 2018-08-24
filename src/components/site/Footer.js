@@ -6,7 +6,7 @@ class Footer extends Component {
     return (
       <div>
         <footer className="footer">
-          <div className="container">
+          <div className="container-fluid">
             <span className="text-muted">
               D-Marketplace &#169; {new Date().getFullYear()}
             </span>

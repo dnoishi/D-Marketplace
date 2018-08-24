@@ -12,7 +12,6 @@ import Contact from "../../layouts/site/Contact";
 import StoreDetails from "../store/StoreDetails";
 import AddStore from "../store/AddStore";
 import Admin from "../manage/Admin";
-import StoreOwner from "../manage/StoreOwner";
 import AddProduct from "../product/AddProduct";
 import Marketplace from "../../../build/contracts/Marketplace.json";
 
@@ -38,10 +37,10 @@ class Navbar extends Component {
     marketplace.setProvider(this.props.web3.currentProvider);
   }
   componentWillMount() {
-    this.checkAdminRigths();
+    this.checkRights();
   }
 
-  checkAdminRigths = async () => {
+  checkRights = async () => {
     // TODO: determine if we are a store owner
     const marketplaceInstance = await marketplace.deployed();
     this.setState({ instance: marketplaceInstance });
@@ -62,7 +61,7 @@ class Navbar extends Component {
   };
 
   render() {
-    const { isContractOwner, isStoreOwner, isAdmin } = this.state;
+    const { isContractOwner, isAdmin, isStoreOwner } = this.state;
     return (
       <Router>
         <div>
@@ -78,7 +77,7 @@ class Navbar extends Component {
             >
               <span className="navbar-toggler-icon" />
             </button>
-            <div className="container">
+            <div className="container-fluid">
               <Link className="navbar-brand" to="/">
                 D-Marketplace
               </Link>
@@ -105,16 +104,6 @@ class Navbar extends Component {
                       Manage Admin
                     </Link>
                   </li>
-                  <li className="nav-item" hidden={!isAdmin}>
-                    <Link className="nav-link" to="/manage-owners">
-                      Manage Owner
-                    </Link>
-                  </li>
-                  <li className="nav-item" hidden={!isStoreOwner}>
-                    <Link className="nav-link" to="/add-store">
-                      Manage Store
-                    </Link>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -126,6 +115,8 @@ class Navbar extends Component {
                 exact
                 render={() => (
                   <Home
+                    isAdmin={isAdmin}
+                    isStoreOwner={isStoreOwner}
                     web3={this.props.web3}
                     account={this.props.account}
                     instance={this.state.instance}
@@ -159,18 +150,6 @@ class Navbar extends Component {
                 )}
               />
               <SecretRoute
-                isAuth={isAdmin}
-                path="/manage-owners"
-                exact
-                render={() => (
-                  <StoreOwner
-                    web3={this.props.web3}
-                    account={this.props.account}
-                    instance={this.state.instance}
-                  />
-                )}
-              />
-              <SecretRoute
                 isAuth={isStoreOwner}
                 path="/add-store"
                 exact
@@ -188,7 +167,7 @@ class Navbar extends Component {
                 exact
                 render={props=> (
                   <AddProduct
-                  {...props}
+                    {...props}
                     web3={this.props.web3}
                     account={this.props.account}
                     instance={this.state.instance}

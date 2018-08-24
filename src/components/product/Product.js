@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import ipfs from "../../utils/ipfs";
 
-import productSample from "../../images/productSample.png";
-
 import "./Product.css";
 
 class Product extends Component {
@@ -31,8 +29,25 @@ class Product extends Component {
     });
   }
 
+  renderButtons(){
+    const { id, isOwner } = this.props;
+    if(isOwner){
+      return (
+      <Link to={`/products/${id}`} className="btn btn-primary">
+        Modify Price
+      </Link>
+      );
+    } else {
+      return (
+      <button className="btn btn-primary">
+        Buy
+      </button>
+      );
+    }
+  }
+
   render() {
-    const { id, price, quantity } = this.props;
+    const { price, quantity } = this.props;
     const { name, description, image } = this.state;
     return (
       <div className="col-md-4">
@@ -45,9 +60,7 @@ class Product extends Component {
               <br />
               {price} - {quantity}
             </p>
-            <Link to={`/products/${id}`} className="btn btn-primary">
-              Details
-            </Link>
+            {this.renderButtons()}
           </div>
         </div>
       </div>

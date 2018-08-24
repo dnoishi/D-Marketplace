@@ -19,18 +19,19 @@ class StoreDetails extends Component {
 
   componentDidMount() {
     const { store } = this.props.location.state;
-    if (store.ownerAddress === this.props.account)
-      this.setState({ isOwner: true });
 
     this.setState({
       id: store.id,
+      isOwner: store.isStoreOwner,
       storeName: store.storeName,
       description: store.description,
       balance: store.balance
     });
+
     if (this.props.instance !== null) {
       this.loadProducts(store.id);
     }
+
   }
 
   componentDidUpdate(prevProps) {
@@ -62,26 +63,36 @@ class StoreDetails extends Component {
     this.setState({ products });
   };
 
+  renderAddButton(){
+    const { id, storeName, isOwner } = this.state;
+
+    if(isOwner){
+      return(
+        <Link
+              to={{
+                pathname: "/add-product",
+                state: { id, isOwner, storeName }
+              }}
+              className="btn btn-primary"
+            >
+              Add Product
+            </Link>
+      )
+    }
+  }
+
   render() {
-    const { id, products, storeName, description, isOwner } = this.state;
-    return (
-      <div>
-        <Jumbotron title={storeName} subtitle={description} />
-        <div className="container">
-          <Link
-            to={{
-              pathname: `/add-product`,
-              state: { id, isOwner, storeName }
-            }}
-            className="btn btn-primary"
-          >
-            Add Product
-          </Link>
-          <br />
-          <ProductList title="Products" list={products} />
+    const { products, storeName, description, isOwner } = this.state;
+      return (
+        <div>
+          <Jumbotron title={storeName} subtitle={description} />
+          <div className="container">
+            {this.renderAddButton()}
+            <br /><br />
+            <ProductList title="Products" list={products} isOwner={isOwner}/>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 }
 

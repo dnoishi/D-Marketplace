@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Jumbotron from "../../components/site/Jumbotron";
 import ipfs from "../../utils/ipfs";
+import { Redirect } from 'react-router-dom';
 
 class AddProduct extends Component {
   constructor(props) {
@@ -11,7 +12,8 @@ class AddProduct extends Component {
       name: "",
       description: "",
       price: "",
-      quantity: ""
+      quantity: "",
+      toStore: false
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -107,12 +109,15 @@ class AddProduct extends Component {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false });
+        this.setState({ isSubmitting: false, toStore: true });
       });
   }
 
   render() {
-    const { storeName } = this.props.location.state;
+    const { id, storeName } = this.props.location.state;
+    if (this.state.toStore === true) {
+      return <Redirect to={`/store/${id}`} />
+    }
     return (
       <div>
         <Jumbotron

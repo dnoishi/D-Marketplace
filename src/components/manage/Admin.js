@@ -19,6 +19,12 @@ class Admin extends Component {
     this.loadAdminList();
   }
 
+  componentWillUpdate(prevState){
+    if(this.state.adminList !== prevState.adminList){
+      this.loadAdminList();
+    }
+  }
+
   addAdmin = address => {
     this.setState({ isSubmitting: true });
     this.props.instance.registerAdmin
