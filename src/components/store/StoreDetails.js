@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ProductList from "../product/ProductList";
 import Jumbotron from "../../components/site/Jumbotron";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 class StoreDetails extends Component {
   constructor(props) {
@@ -14,7 +14,8 @@ class StoreDetails extends Component {
       description: "",
       balance: null,
       productCount: null,
-      isSubmitting: false
+      isSubmitting: false,
+      toHome: false
     };
   }
 
@@ -84,7 +85,7 @@ class StoreDetails extends Component {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false });
+        this.setState({ isSubmitting: false, toHome: true });
       });
   };
 
@@ -114,6 +115,9 @@ class StoreDetails extends Component {
   }
 
   render() {
+    if (this.state.toHome === true) {
+      return <Redirect to='/' />
+    }
     const { products, storeName, description, isOwner } = this.state;
     const {instance, account, web3} = this.props;
       return (
