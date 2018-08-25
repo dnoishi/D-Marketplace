@@ -136,7 +136,13 @@ class AddStore extends Component {
             disabled={this.state.isSubmitting}
             onClick={e => this.handleClick(e)}
           >
-            Add Store
+            {this.state.isSubmitting ?
+              <span>
+                <i className="fa fa-spin fa-spinner"/> Sending...
+              </span>
+              :
+              <span>Add Store</span>
+            }
           </button>
         </form>
       </div>

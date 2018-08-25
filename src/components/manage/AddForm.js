@@ -44,7 +44,13 @@ class AddForm extends Component {
               disabled={this.props.isSubmitting}
               onClick={this.handleOnClick}
             >
-              Add
+              {this.state.isSubmitting ?
+                <span>
+                  <i className="fa fa-spin fa-spinner"/> Sending...
+                </span>
+                :
+                <span>Add</span>
+              }
             </button>
           </div>
         </div>

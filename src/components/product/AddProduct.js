@@ -13,7 +13,7 @@ class AddProduct extends Component {
       description: "",
       price: "",
       quantity: "",
-      toStore: false
+      toHome: false
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -47,8 +47,9 @@ class AddProduct extends Component {
   };
 
   handleClick(e) {
+    const {web3, instance, account, location} = this.props;
     e.preventDefault();
-    const { id } = this.props.location.state;
+    const { id } = location.state;
     this.setState({ isSubmitting: true });
     let product = {
       name: this.state.name,
@@ -73,31 +74,31 @@ class AddProduct extends Component {
       .then(attributesHash => {
         console.log("ipfs", attributesHash[0].hash);
         attrHash = attributesHash[0].hash;
-        return this.props.instance.addProductToStore.estimateGas(
+        return instance.addProductToStore.estimateGas(
           id,
           attrHash,
           this.state.price,
           this.state.quantity,
           {
-            from: this.props.account
+            from: account
           }
         );
       })
       .then(estimatedGas => {
-        let hexHash = this.props.web3.toHex(attrHash);
-        return this.props.instance.addProductToStore(
+        let hexHash = web3.toHex(attrHash);
+        return instance.addProductToStore(
           id,
           hexHash,
           this.state.price,
           this.state.quantity,
           {
-            from: this.props.account,
+            from: account,
             gas: estimatedGas + 1000
           }
         );
       })
       .then(receipt => {
-        console.log(receipt);
+        console.log(receipt.receipt);
         this.setState({
           name: "",
           description: "",
@@ -109,14 +110,14 @@ class AddProduct extends Component {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false, toStore: true });
+        this.setState({ isSubmitting: false, toHome: true });
       });
   }
 
   render() {
-    const { id, storeName } = this.props.location.state;
+    const { storeName } = this.props.location.state;
     if (this.state.toStore === true) {
-      return <Redirect to={`/store/${id}`} />
+      return <Redirect to='/' />
     }
     return (
       <div>
@@ -190,7 +191,13 @@ class AddProduct extends Component {
             disabled={this.state.isSubmitting}
             onClick={e => this.handleClick(e)}
           >
-            Add Product
+            {this.state.isSubmitting ?
+              <span>
+                <i className="fa fa-spin fa-spinner"/> Sending...
+              </span>
+              :
+              <span>Add Product</span>
+            }
           </button>
         </form>
       </div>

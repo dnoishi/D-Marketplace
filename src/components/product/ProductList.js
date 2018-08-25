@@ -10,13 +10,13 @@ class ProductList extends Component {
   }
 
   render() {
-    const { title, list, isOwner } = this.props;
+    const { title, list, isOwner, instance, account, web3 } = this.props;
     return (
       <div>
         <h3>{title}</h3>
         <div className="row">
           {list.map((product, i) => (
-            <Product key={product.id} {...product} isOwner={isOwner}/>
+            <Product key={product.id} {...product} isOwner={isOwner} instance={instance} account={account} web3={web3}/>
           ))}
           {list.length === 0 ? <p>No products available</p> : ""}
         </div>

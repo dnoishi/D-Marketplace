@@ -15,23 +15,34 @@ class Store extends Component {
     };
   }
 
-  componentDidMount() {
-      this.loadAttributes();
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
-  loadAttributes() {
-    ipfs.files.get(this.props.metadataHash).then(r => {
-      const jsonMetadata = JSON.parse(r[0].content);
-      this.setState({
-        storeName: jsonMetadata.storeName,
-        description: jsonMetadata.description,
-        image: jsonMetadata.image
-      });
-    });
+  componentDidMount() {
+    this.mounted = true;
+    this.loadAttributes();
+    
+  }
 
-    if(this.props.isStoreOwner){
-      this.setState({ btnText: 'Manage Store' });
-    }
+
+  loadAttributes() {
+      ipfs.files.get(this.props.metadataHash).then(r => {
+        const jsonMetadata = JSON.parse(r[0].content);
+        if (this.mounted) {
+        this.setState({
+          storeName: jsonMetadata.storeName,
+          description: jsonMetadata.description,
+          image: jsonMetadata.image
+        });
+      }
+      });
+
+      if(this.props.isStoreOwner){
+        this.setState({ btnText: 'Manage Store' });
+      }
+
+      
   }
 
   render() {

@@ -13,7 +13,8 @@ class StoreDetails extends Component {
       storeName: "",
       description: "",
       balance: null,
-      productCount: null
+      productCount: null,
+      isSubmitting: false
     };
   }
 
@@ -43,16 +44,18 @@ class StoreDetails extends Component {
 
   loadProducts = async id => {
     const products = [];
+    const storeId = this.state.id;
     let productsOfStore = await this.props.instance.getStoreProducts.call(id);
     for (const element of productsOfStore) {
       const id = element.c[0];
       const info = await this.props.instance.products.call(id);
       const metadataHash = this.props.web3.toAscii(info[0]);
       const price = info[1].c[0];
-      const quantity = info[1].c[0];
+      const quantity = info[2].c[0];
 
       const product = {
         id,
+        storeId,
         metadataHash,
         price,
         quantity
@@ -63,33 +66,65 @@ class StoreDetails extends Component {
     this.setState({ products });
   };
 
-  renderAddButton(){
-    const { id, storeName, isOwner } = this.state;
+
+  withdrawFunds = e => {
+    this.setState({ isSubmitting: true });
+    const {id} = this.state;
+    const {instance, account } = this.props;
+    e.preventDefault();
+    
+    instance.withdrawStoreFunds.estimateGas(id, { from: account })
+      .then(estimatedGas => {
+        return instance.withdrawStoreFunds(id, { from: account, gas: estimatedGas + 10000 });
+      })
+      .then(receipt => {
+        console.log(receipt.receipt);
+      })
+      .catch(err => {
+        console.error(err);
+      })
+      .finally(() => {
+        this.setState({ isSubmitting: false });
+      });
+  };
+
+  renderStoreButtons(){
+    const { id, storeName, isOwner, balance } = this.state;
 
     if(isOwner){
       return(
-        <Link
-              to={{
-                pathname: "/add-product",
-                state: { id, isOwner, storeName }
-              }}
-              className="btn btn-primary"
-            >
+        <div className="row">
+          <div className="col-md-6">
+            <Link to={{ pathname: "/add-product",state: { id, isOwner, storeName }}}
+              className="btn btn-primary" >
               Add Product
             </Link>
+          </div>
+          <div className="col-md-auto">
+            Store Balance: {balance}  |
+            { balance ? 
+               <button onClick={this.withdrawFunds} className="btn btn-warning">Withdraw funds</button> 
+              : ''
+            }
+          </div>
+        </div>
+        
       )
     }
   }
 
   render() {
     const { products, storeName, description, isOwner } = this.state;
+    const {instance, account, web3} = this.props;
       return (
         <div>
           <Jumbotron title={storeName} subtitle={description} />
+
           <div className="container">
-            {this.renderAddButton()}
+              {this.renderStoreButtons()}
             <br /><br />
-            <ProductList title="Products" list={products} isOwner={isOwner}/>
+            <ProductList title="Products" web3={web3}
+            instance={instance} account={account} list={products} isOwner={isOwner}/>
           </div>
         </div>
       );
