@@ -93,7 +93,7 @@ class AddProduct extends Component {
           this.state.quantity,
           {
             from: account,
-            gas: estimatedGas + 1000
+            gas: estimatedGas + 100000
           }
         );
       })

@@ -128,7 +128,7 @@ class StoreDetails extends Component {
               {this.renderStoreButtons()}
             <br /><br />
             <ProductList title="Products" web3={web3}
-            instance={instance} account={account} list={products} isOwner={isOwner}/>
+            instance={instance} account={account} list={products} isOwner={isOwner} />
           </div>
         </div>
       );

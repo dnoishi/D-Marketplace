@@ -50,7 +50,7 @@ class Product extends Component {
       .then(estimatedGas => {
         return instance.removeProductFromStore(storeId, id, { 
           from: account,
-          gas: estimatedGas + 10000
+          gas: estimatedGas + 100000
         });
       })
       .then(receipt => {
@@ -60,8 +60,7 @@ class Product extends Component {
         console.log(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false,
-          toHome: true  });
+        this.setState({ isSubmitting: false, toHome: true  });
       });
   }
 
@@ -75,7 +74,7 @@ class Product extends Component {
       .then(estimatedGas => {
         return instance.changeProductPrice(storeId, id, newValue,{ 
           from: account,
-          gas: estimatedGas + 10000
+          gas: estimatedGas + 100000
         });
       })
       .then(receipt => {
@@ -102,7 +101,7 @@ class Product extends Component {
       .then(estimatedGas => {
         return instance.buyProduct(id, {
           from: account,
-          gas: estimatedGas + 10000,
+          gas: estimatedGas + 100000,
           value: web3.toWei(price, "ether")
         });
       })

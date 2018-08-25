@@ -17,7 +17,7 @@ contract Marketplace is ManageStore {
     * @dev Allows an user to buy a product
     * @param _productId Index of products[].
     */
-    function buyProduct(uint _productId) public payable{
+    function buyProduct(uint _productId) public whenNotPaused payable{
         Product storage p = products[_productId];
         require(p.quantity > 0, "Product unavaliable");
         require(msg.value >= p.price, "need to pay according");

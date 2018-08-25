@@ -62,7 +62,10 @@ contract ManageStore is ManageOwner {
     * @dev Allows a store owner to add a store front to the market.
     * @param _metadata IPFS Hash with the store metadata.
     */
-    function addStore(bytes _metadata) public onlyStoreOwner {
+    function addStore(bytes _metadata) 
+        public 
+        onlyStoreOwner 
+        whenNotPaused {
         uint id = stores.push(Store({metadataHash: _metadata, balance: 0, productsIds: new uint[](0) })).sub(1);
         storeToOwner[id] = msg.sender;
         ownerStoreCount[msg.sender]++;
@@ -76,7 +79,9 @@ contract ManageStore is ManageOwner {
     * @param _price price of the product on the market.
     * @param _quantity quantity avaliable for users to purchase.
     */
-    function addProductToStore(uint _storeId, bytes _productMetadata, uint _price, uint _quantity) public onlyOwnerOf(_storeId){
+    function addProductToStore(uint _storeId, bytes _productMetadata, uint _price, uint _quantity) 
+        public onlyOwnerOf(_storeId) 
+        whenNotPaused {
         uint id = products.push(Product({metadataHash: _productMetadata, price: _price, quantity: _quantity})).sub(1);
         Store storage s = stores[_storeId];
         uint index = s.productsIds.length++;
@@ -90,7 +95,10 @@ contract ManageStore is ManageOwner {
     * @param _storeId Id of the store where the product will be removed.
     * @param _productId id of the product to be removed.
     */
-    function removeProductFromStore(uint _storeId, uint _productId) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
+    function removeProductFromStore(uint _storeId, uint _productId) 
+        public onlyOwnerOf(_storeId) 
+        storeOf(_storeId, _productId) 
+        whenNotPaused {
         //Remove product
         delete products[_productId];
         Product storage replacer = products[products.length - 1];
@@ -117,7 +125,10 @@ contract ManageStore is ManageOwner {
     * @param _productId id of the product to be changed.
     * @param _newPrice new price for the product.
     */
-    function changeProductPrice(uint _storeId, uint _productId, uint _newPrice) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
+    function changeProductPrice(uint _storeId, uint _productId, uint _newPrice) 
+        public onlyOwnerOf(_storeId) 
+        storeOf(_storeId, _productId)
+        whenNotPaused {
         Product storage p = products[_productId];
         p.price = _newPrice;
         emit LogPriceChanged(_storeId, _productId, _newPrice);
@@ -129,7 +140,10 @@ contract ManageStore is ManageOwner {
     * @param _productId id of the product to be changed.
     * @param _newQuantity new quantity for the product.
     */
-    function changeProductQuantity(uint _storeId, uint _productId, uint _newQuantity) public onlyOwnerOf(_storeId) storeOf(_storeId, _productId){
+    function changeProductQuantity(uint _storeId, uint _productId, uint _newQuantity) 
+        public onlyOwnerOf(_storeId) 
+        storeOf(_storeId, _productId)
+        whenNotPaused {
         Product storage p = products[_productId];
         p.quantity = _newQuantity;
         emit LogQuantityChanged(_storeId, _productId, _newQuantity);
@@ -139,7 +153,10 @@ contract ManageStore is ManageOwner {
     * @dev Allows a store owner to withdraw the balance of a store.
     * @param _storeId Id of the store.
     */
-    function withdrawStoreFunds(uint _storeId) public onlyOwnerOf(_storeId) {
+    function withdrawStoreFunds(uint _storeId) 
+        public 
+        onlyOwnerOf(_storeId) 
+        whenNotPaused {
         Store storage s = stores[_storeId]; //Get reference of the store
         uint contractBalance = address(this).balance; //Get contract current balance
         uint amountToSend = s.balance; //get the store balance
@@ -160,14 +177,14 @@ contract ManageStore is ManageOwner {
     /**
     * @dev Allows to retrive the products id of a specific store.
     */
-    function getStoreProducts(uint _storeId) public view returns (uint[]){
+    function getStoreProducts(uint _storeId) public view returns (uint[]){ 
         return stores[_storeId].productsIds;
     }
     
     /**
     * @dev Allows to retrive the number of products of a specific store.
     */
-    function getStoreProductsCount(uint _storeId) public view returns (uint){
+    function getStoreProductsCount(uint _storeId) public view  returns (uint){
         return stores[_storeId].productsIds.length;
     }
     
