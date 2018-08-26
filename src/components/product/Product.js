@@ -12,12 +12,14 @@ class Product extends Component {
       name: "",
       description: "",
       image: "",
+      price: '',
+      quantity: '',
       isSubmitting: false,
       Modifiying: false,
       inputText: '',
       toStore: false,
       isFormValidationErrors : true,
-      submitted:false,
+      submitted:false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -35,10 +37,13 @@ class Product extends Component {
       this.setState({
         name: jsonMetadata.name,
         description: jsonMetadata.description,
-        image: jsonMetadata.image
+        image: jsonMetadata.image,
+        price: this.props.price,
+        quantity: this.props.quantity
       });
     });
   }
+
 
   handleChange = (e) => {
     this.setState({ inputText: e.target.value });
@@ -70,14 +75,15 @@ class Product extends Component {
           });
         })
         .then(receipt => {
-          console.log(receipt.receipt);
+          let newPrice = receipt.logs[0].args._newPrice.toNumber();
+          alert(receipt.logs[0].event);
+          this.setState({ price: newPrice });
         })
         .catch(err => {
           console.log(err);
         })
         .finally(() => {
-          this.setState({ isSubmitting: false, Modifiying: false,
-            toStore: true  });
+          this.setState({ isSubmitting: false, Modifiying: false });
         });
     }
   }
@@ -95,7 +101,7 @@ class Product extends Component {
         });
       })
       .then(receipt => {
-        console.log(receipt.receipt);
+        alert(receipt.logs[0].event);
       })
       .catch(err => {
         console.log(err);
@@ -121,13 +127,15 @@ class Product extends Component {
         });
       })
       .then(receipt => {
-        console.log(receipt);
+        alert(receipt.logs[0].event);
+        let newQuantity = receipt.logs[0].args.newQuantity.toNumber();
+        this.setState({ quantity: newQuantity });
       })
       .catch(err => {
         console.log(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false, toStore: true  });
+        this.setState({ isSubmitting: false  });
       });
   };
 
@@ -173,12 +181,12 @@ class Product extends Component {
   }
 
   render() {
-    const { price, quantity, isOwner, web3 } = this.props;
+    const { isOwner, web3 } = this.props;
     if (this.state.toStore === true) {
       return <Redirect to={`/`}/>
     }
     
-    const { name, description, image, Modifiying, isSubmitting, submitted, inputText  } = this.state;
+    const { name, description, image, Modifiying, isSubmitting, submitted, inputText, price, quantity  } = this.state;
     return (
       <div className="col-md-4">
         <div className="card">

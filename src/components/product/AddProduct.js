@@ -125,7 +125,7 @@ class AddProduct extends Component {
     if (this.state.toHome === true) {
       return <Redirect to={`/store/${id}`} push/>
     }
-    let { name, description, price, quantity, buffer, submitted } = this.state;
+    let { name, description, price, quantity, submitted } = this.state;
     return (
       <div>
         <Jumbotron

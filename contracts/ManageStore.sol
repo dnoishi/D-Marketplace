@@ -12,7 +12,7 @@ contract ManageStore is ManageOwner {
     event LogProductRemoved(uint _storeId, uint _productId);
     event LogPriceChanged(uint _storeId, uint _productId, uint _newPrice);
     event LogQuantityChanged(uint _storeId, uint _productId, uint _newQuantity);
-    event LogStoreWithdrawed(address _reciver, uint _balance);
+    event LogStoreWithdrawed(address _reciver, uint _balance, uint _newBalance);
     
     
     struct Store {
@@ -164,7 +164,7 @@ contract ManageStore is ManageOwner {
         require(amountToSend > 0, "Your store balance needs to be greater than 0"); //check that the store has a valid balace to withdraw
         s.balance -= amountToSend; //remove amount from store reference
         address(msg.sender).transfer(amountToSend); //send it to function caller
-        emit LogStoreWithdrawed(msg.sender, amountToSend);
+        emit LogStoreWithdrawed(msg.sender, amountToSend, s.balance);
     }
 
     /**

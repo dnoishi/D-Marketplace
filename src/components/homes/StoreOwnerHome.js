@@ -10,7 +10,7 @@ class StoreOwnerHome extends Component {
     }
 
     componentDidMount() {
-        if (this.props.instance !== null){
+        if (this.props.isStoreOwner !== null){
             this.loadOwnerStores();
         } 
     }

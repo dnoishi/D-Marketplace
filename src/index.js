@@ -6,7 +6,7 @@ import getWeb3 from "./utils/getWeb3";
 getWeb3
   .then(results => {
     ReactDOM.render(
-      <App web3={results.web3} />,
+        <App web3={results.web3} />,
       document.getElementById("root")
     );
   })

@@ -11,7 +11,7 @@ contract Marketplace is ManageStore {
     //Initialize safeMath library
     using SafeMath for uint; 
 
-    event LogProductSold(uint productId, uint price, address buyer);
+    event LogProductSold(uint productId, uint price, address buyer, uint newQuantity);
 
     /**
     * @dev Allows an user to buy a product
@@ -35,7 +35,7 @@ contract Marketplace is ManageStore {
         if(msg.value > 0)
             msg.sender.transfer(refund);
 
-        emit LogProductSold(_productId, p.price, msg.sender);
+        emit LogProductSold(_productId, p.price, msg.sender, p.quantity);
     }
     
     /**

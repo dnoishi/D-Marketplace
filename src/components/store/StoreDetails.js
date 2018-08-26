@@ -90,7 +90,7 @@ class StoreDetails extends Component {
   withdrawFunds = e => {
     this.setState({ isSubmitting: true });
     const {id} = this.state;
-    const {instance, account } = this.props;
+    const {instance, account, web3 } = this.props;
     e.preventDefault();
     
     instance.withdrawStoreFunds.estimateGas(id, { from: account })
@@ -98,13 +98,15 @@ class StoreDetails extends Component {
         return instance.withdrawStoreFunds(id, { from: account, gas: estimatedGas + 10000 });
       })
       .then(receipt => {
-        console.log(receipt.receipt);
+        alert(receipt.logs[0].event);
+        let newBalance = web3.fromWei(receipt.logs[0].args._newBalance.toNumber());
+        this.setState({ balance: newBalance });
       })
       .catch(err => {
         console.error(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false, toHome: true });
+        this.setState({ isSubmitting: false });
       });
   };
 
