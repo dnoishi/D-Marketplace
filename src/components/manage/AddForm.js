@@ -21,7 +21,7 @@ class AddForm extends Component {
     return (
       <form>
         <div className="form-row align-items-center">
-          <div className="col-auto">
+          <div className="col-md-6">
             <label className="sr-only" htmlFor="address">
               Address
             </label>
@@ -29,17 +29,17 @@ class AddForm extends Component {
               type="text"
               onChange={this.handleChange}
               disabled={this.props.isSubmitting}
-              className="form-control mb-2"
+              className="form-control"
               value={address}
               id="address"
-              placeholder="0x0"
+              placeholder="Address (0x0)"
             />
           </div>
 
           <div className="col-auto">
             <button
               type="submit"
-              className="btn btn-primary mb-2"
+              className="btn btn-primary"
               disabled={this.props.isSubmitting}
               onClick={this.handleOnClick}
             >

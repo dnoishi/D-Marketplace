@@ -16,7 +16,7 @@ class ShopperHome extends Component {
     }
     
     componentDidUpdate(prevProps) {
-        if (this.props.instance !== prevProps.instance) {
+        if (this.props.isStoreOwner !== prevProps.isStoreOwner) {
           this.loadMarketplaceStores();
         }
     }

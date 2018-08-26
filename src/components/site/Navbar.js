@@ -6,7 +6,7 @@ import {
   Redirect,
   Switch
 } from "react-router-dom";
-import Home from "../homes/Home";
+import Home from "./Home";
 import StoreDetails from "../store/StoreDetails";
 import AddStore from "../store/AddStore";
 import Admin from "../manage/Admin";
@@ -82,7 +82,7 @@ class Navbar extends Component {
             >
               <span className="navbar-toggler-icon" />
             </button>
-            <div className="container-fluid">
+            <div className="container">
               <Link className="navbar-brand" to="/">
                 D-Marketplace
               </Link>

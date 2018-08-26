@@ -14,7 +14,7 @@ class Home extends Component {
     return(
       <div>
         {isAdmin ? <AdminHome {...this.props} /> : null}
-        {isStoreOwner ? <StoreOwnerHome {...this.props} />: null}
+        {isStoreOwner ? <StoreOwnerHome {...this.props} /> : null}
         {!isStoreOwner && !isAdmin ? <ShopperHome {...this.props} /> : null}
       </div>
     );
