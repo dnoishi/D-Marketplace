@@ -56,7 +56,7 @@ class ShopperHome extends Component {
                 title="Welcome"
                 subtitle="This is your descentralized marketplace!"
                 />
-                <div className="container-fluid">
+                <div className="container">
                 <StoreList title="Marketplace" list={this.state.marketplaceStores} 
                     isStoreOwner={this.props.isStoreOwner} />
                 </div>

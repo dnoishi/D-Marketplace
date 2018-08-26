@@ -49,7 +49,7 @@ class StoreOwnerHome extends Component {
                 title="Manage Stores"
                 subtitle="Add or remove stores to the marketplace."
                 />
-                <div className="container-fluid">
+                <div className="container">
                 <Link className="btn btn-primary" to="/add-store">
                     Add Store
                 </Link>

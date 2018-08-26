@@ -14,7 +14,7 @@ class Product extends Component {
       isSubmitting: false,
       Modifiying: false,
       inputText: '',
-      toHome: false
+      toStore: false
     };
   }
 
@@ -60,7 +60,7 @@ class Product extends Component {
         console.log(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false, toHome: true  });
+        this.setState({ isSubmitting: false, toStore: true  });
       });
   }
 
@@ -85,7 +85,7 @@ class Product extends Component {
       })
       .finally(() => {
         this.setState({ isSubmitting: false, Modifiying: false,
-          toHome: true  });
+          toStore: true  });
       });
   }
 
@@ -112,13 +112,13 @@ class Product extends Component {
         console.log(err);
       })
       .finally(() => {
-        this.setState({ isSubmitting: false, toHome: true  });
+        this.setState({ isSubmitting: false, toStore: true  });
       });
   };
 
   renderBuyButton(){
     return (
-      <div class="card-body">
+      <div className="card-body">
         <button disabled={this.state.isSubmitting} onClick={this.handleBuy} className="btn btn-primary">
           Buy
         </button>
@@ -158,11 +158,12 @@ class Product extends Component {
   }
 
   render() {
-    if (this.state.toHome === true) {
-      return <Redirect to='/' />
+    const { price, quantity, storeId, isOwner } = this.props;
+    if (this.state.toStore === true) {
+      return <Redirect to={`/store/${storeId}`}/>
     }
-    const { price, quantity, isOwner } = this.props;
-    const { name, description, image, Modifiying } = this.state;
+    
+    const { name, description, image, Modifiying, isSubmitting } = this.state;
     return (
       <div className="col-md-4">
         <div className="card">
@@ -178,6 +179,7 @@ class Product extends Component {
                   <span>
                     <input className="form-control" type="number"
                       onChange={this.handleChange}
+                      disabled={isSubmitting}
                       value={this.state.inputText} />
                   </span>
                 )

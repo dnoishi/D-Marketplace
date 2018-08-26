@@ -14,6 +14,7 @@ class ProductList extends Component {
     return (
       <div>
         <h3>{title}</h3>
+        <br />
         <div className="row">
           {list.map((product, i) => (
             <Product key={product.id} {...product} isOwner={isOwner} instance={instance} account={account} web3={web3}/>

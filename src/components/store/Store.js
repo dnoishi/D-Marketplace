@@ -65,7 +65,7 @@ class Store extends Component {
             <Link
               to={{
                 pathname: `/store/${id}`,
-                state: { store }
+                state: { store, isStoreOwner }
               }}
               className="btn btn-primary"
             >

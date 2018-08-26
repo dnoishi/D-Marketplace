@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import AdminHome from "../../components/homes/AdminHome";
-import StoreOwnerHome from "../../components/homes/StoreOwnerHome";
-import ShopperHome from "../../components/homes/ShopperHome";
+import AdminHome from "../homes/AdminHome";
+import StoreOwnerHome from "../homes/StoreOwnerHome";
+import ShopperHome from "../homes/ShopperHome";
 
 class Home extends Component {
   constructor(props) {

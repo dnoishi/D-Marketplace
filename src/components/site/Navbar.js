@@ -6,9 +6,7 @@ import {
   Redirect,
   Switch
 } from "react-router-dom";
-import Home from "../../layouts/site/Home";
-import About from "../../layouts/site/About";
-import Contact from "../../layouts/site/Contact";
+import Home from "../homes/Home";
 import StoreDetails from "../store/StoreDetails";
 import AddStore from "../store/AddStore";
 import Admin from "../manage/Admin";
@@ -36,8 +34,14 @@ class Navbar extends Component {
 
     marketplace.setProvider(this.props.web3.currentProvider);
   }
+
   componentWillMount() {
     this.checkRights();
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props.account !== prevProps.account)
+      this.checkRights();
   }
 
   checkRights = async () => {
@@ -62,6 +66,7 @@ class Navbar extends Component {
 
   render() {
     const { isContractOwner, isAdmin, isStoreOwner } = this.state;
+    const { account } = this.props;
     return (
       <Router>
         <div>
@@ -84,25 +89,15 @@ class Navbar extends Component {
 
               <div className="collapse navbar-collapse" id="navbarCollapse">
                 <ul className="navbar-nav ml-auto">
-                  <li className="nav-item active">
-                    <Link className="nav-link" to="/">
-                      Home <span className="sr-only">(current)</span>
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/about">
-                      About
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/contact">
-                      Contact
-                    </Link>
-                  </li>
                   <li className="nav-item" hidden={!isContractOwner}>
                     <Link className="nav-link" to="/manage-admins">
                       Manage Admin
                     </Link>
+                  </li>
+                  <li className="nav-item">
+                    <span className="nav-link">
+                      Logged as: {account}
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -123,8 +118,6 @@ class Navbar extends Component {
                   />
                 )}
               />
-              <Route path="/about" exact component={About} />
-              <Route path="/contact" exact component={Contact} />
               <Route
                 exact
                 path="/store/:storeId"
@@ -163,7 +156,7 @@ class Navbar extends Component {
               />
               <SecretRoute
                 isAuth={isStoreOwner}
-                path="/add-product"
+                path="/store/:storeId/add-product"
                 exact
                 render={props=> (
                   <AddProduct

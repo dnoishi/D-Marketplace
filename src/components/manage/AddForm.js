@@ -7,9 +7,7 @@ class AddForm extends Component {
 
   handleChange = e => {
     const newAddress = e.target.value;
-    this.setState({
-      address: newAddress
-    });
+    this.setState({ address: newAddress });
   };
 
   handleOnClick = e => {
@@ -30,6 +28,7 @@ class AddForm extends Component {
             <input
               type="text"
               onChange={this.handleChange}
+              disabled={this.props.isSubmitting}
               className="form-control mb-2"
               value={address}
               id="address"

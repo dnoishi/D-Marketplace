@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ProductList from "../product/ProductList";
 import Jumbotron from "../../components/site/Jumbotron";
 import { Link, Redirect } from "react-router-dom";
+import ipfs from "../../utils/ipfs";
 
 class StoreDetails extends Component {
   constructor(props) {
@@ -20,32 +21,50 @@ class StoreDetails extends Component {
   }
 
   componentDidMount() {
-    const { store } = this.props.location.state;
-
-    this.setState({
-      id: store.id,
-      isOwner: store.isStoreOwner,
-      storeName: store.storeName,
-      description: store.description,
-      balance: store.balance
-    });
+    
+    const { storeId } = this.props.match.params;
+    if(this.props.instance !== null){
+      this.loadStoreDetails(storeId);
+    }
 
     if (this.props.instance !== null) {
-      this.loadProducts(store.id);
+      this.loadProducts(storeId);
     }
+
+  }
+
+  loadStoreDetails = async (storeId) => {
+
+    const { instance, account, web3 } = this.props;
+    const isOwner = await instance.isStoreOwner.call(account);
+    const info = await instance.stores.call(storeId);
+    const metadataHash = await web3.toAscii(info[0]);
+    const balance = info[1].c[0];
+
+    ipfs.files.get(metadataHash).then(r => {
+      const jsonMetadata = JSON.parse(r[0].content);
+        this.setState({
+          id: storeId,
+          isOwner: isOwner,
+          storeName: jsonMetadata.storeName,
+          description: jsonMetadata.description,
+          balance: balance
+        });
+    });
 
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.instance !== prevProps.instance) {
-      const { store } = this.props.location.state;
-      this.loadProducts(store.id);
+      const { storeId } = this.props.match.params;
+      this.loadStoreDetails(storeId)
+      this.loadProducts(storeId);
     }
   }
 
   loadProducts = async id => {
     const products = [];
-    const storeId = this.state.id;
+    const storeId = id;
     let productsOfStore = await this.props.instance.getStoreProducts.call(id);
     for (const element of productsOfStore) {
       const id = element.c[0];
@@ -96,7 +115,7 @@ class StoreDetails extends Component {
       return(
         <div className="row">
           <div className="col-md-6">
-            <Link to={{ pathname: "/add-product",state: { id, isOwner, storeName }}}
+            <Link to={{ pathname:`/store/${id}/add-product`, state: { id, isOwner, storeName }}}
               className="btn btn-primary" >
               Add Product
             </Link>
@@ -116,7 +135,7 @@ class StoreDetails extends Component {
 
   render() {
     if (this.state.toHome === true) {
-      return <Redirect to='/' />
+      return <Redirect to='/' push/>
     }
     const { products, storeName, description, isOwner } = this.state;
     const {instance, account, web3} = this.props;

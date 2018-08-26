@@ -16,6 +16,7 @@ class AddStore extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+
   handleChange(evt) {
     this.setState({ [evt.target.name]: evt.target.value });
   }
@@ -89,12 +90,12 @@ class AddStore extends Component {
 
   render() {
     if (this.state.toHome === true) {
-      return <Redirect to='/' />
+      return <Redirect to='/' push/>
     }
     return (
       <div>
         <Jumbotron title="Add Store" subtitle="Add store to the marketplace." />
-        <form className="container-fluid">
+        <form className="container">
           <div className="form-group col-md-6">
             <label htmlFor="storeName">Store Name</label>
             <input
@@ -104,6 +105,7 @@ class AddStore extends Component {
               id="storeName"
               value={this.state.name}
               onChange={this.handleChange}
+              disabled={this.state.isSubmitting}
               placeholder="Enter name"
             />
           </div>
@@ -116,6 +118,7 @@ class AddStore extends Component {
               rows="3"
               onChange={this.handleChange}
               value={this.state.description}
+              disabled={this.state.isSubmitting}
             />
           </div>
           <div className="form-group col-md-6">

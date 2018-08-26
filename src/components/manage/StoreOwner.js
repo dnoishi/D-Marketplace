@@ -32,7 +32,6 @@ class StoreOwner extends Component {
       })
       .then(receipt => {
         console.log(receipt);
-        console.log(this);
         this.loadOwnerList();
       })
       .catch(err => {

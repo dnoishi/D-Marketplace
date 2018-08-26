@@ -22,7 +22,7 @@ class App extends Component {
     // Get user account
     this.setupAccount();
   }
-
+  
   setupAccount() {
     this.props.web3.eth.getAccounts((error, accts) => {
       if (accts === undefined || accts.length === 0) {

@@ -18,11 +18,11 @@ class AddProduct extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  componentDidMount() {
+  /*componentDidMount() {
     if (this.props.location.state !== null) {
       console.log(this.props.location.state.isOwner);
     }
-  }
+  }*/
 
   handleChange(evt) {
     this.setState({ [evt.target.name]: evt.target.value });
@@ -54,11 +54,7 @@ class AddProduct extends Component {
     let product = {
       name: this.state.name,
       description: this.state.description,
-      image: "",
-      attributes: {
-        price: this.state.price,
-        quantity: this.state.quantity
-      }
+      image: ""
     };
 
     let attrHash;
@@ -72,7 +68,6 @@ class AddProduct extends Component {
         return ipfs.files.add(data);
       })
       .then(attributesHash => {
-        console.log("ipfs", attributesHash[0].hash);
         attrHash = attributesHash[0].hash;
         return instance.addProductToStore.estimateGas(
           id,
@@ -115,9 +110,9 @@ class AddProduct extends Component {
   }
 
   render() {
-    const { storeName } = this.props.location.state;
-    if (this.state.toStore === true) {
-      return <Redirect to='/' />
+    const { id, storeName } = this.props.location.state;
+    if (this.state.toHome === true) {
+      return <Redirect to={`/store/${id}`} push/>
     }
     return (
       <div>
@@ -135,6 +130,7 @@ class AddProduct extends Component {
               id="name"
               value={this.state.name}
               onChange={this.handleChange}
+              disabled={this.state.isSubmitting}
               placeholder="Enter name"
             />
           </div>
@@ -147,29 +143,32 @@ class AddProduct extends Component {
               rows="3"
               onChange={this.handleChange}
               value={this.state.description}
+              disabled={this.state.isSubmitting}
             />
           </div>
-          <div className="form-group col-md-6">
+          <div className="form-group col-md-2">
             <label htmlFor="price">Product Price</label>
             <input
-              type="text"
+              type="number"
               className="form-control"
               name="price"
               id="price"
               value={this.state.price}
               onChange={this.handleChange}
+              disabled={this.state.isSubmitting}
               placeholder="Enter price"
             />
           </div>
-          <div className="form-group col-md-6">
+          <div className="form-group col-md-2">
             <label htmlFor="quantity">Product Quantity</label>
             <input
-              type="text"
+              type="number"
               className="form-control"
               name="quantity"
               id="quantity"
               value={this.state.quantity}
               onChange={this.handleChange}
+              disabled={this.state.isSubmitting}
               placeholder="Enter quantity"
             />
           </div>
