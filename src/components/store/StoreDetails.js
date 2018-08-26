@@ -122,7 +122,7 @@ class StoreDetails extends Component {
           </div>
           <div className="col-md-auto">
             Store Balance: {balance}  |
-            { balance ? 
+            { balance > 0 ? 
                <button onClick={this.withdrawFunds} className="btn btn-warning">Withdraw funds</button> 
               : ''
             }
