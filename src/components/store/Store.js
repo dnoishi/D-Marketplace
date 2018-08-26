@@ -46,15 +46,9 @@ class Store extends Component {
   }
 
   render() {
-    const { id, isStoreOwner, balance } = this.props;
+    const { id, isStoreOwner } = this.props;
     const { storeName, description, image, btnText } = this.state;
-    const store = {
-      id,
-      storeName,
-      isStoreOwner,
-      description,
-      balance
-    };
+
     return (
       <div className="col-md-4">
         <div className="card">
@@ -65,7 +59,7 @@ class Store extends Component {
             <Link
               to={{
                 pathname: `/store/${id}`,
-                state: { store, isStoreOwner }
+                state: { isStoreOwner }
               }}
               className="btn btn-primary"
             >

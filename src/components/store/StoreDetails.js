@@ -39,7 +39,7 @@ class StoreDetails extends Component {
     const isOwner = await instance.isStoreOwner.call(account);
     const info = await instance.stores.call(storeId);
     const metadataHash = await web3.toAscii(info[0]);
-    const balance = info[1].c[0];
+    const balance = this.props.web3.fromWei(info[1].toNumber(),"ether");
 
     ipfs.files.get(metadataHash).then(r => {
       const jsonMetadata = JSON.parse(r[0].content);

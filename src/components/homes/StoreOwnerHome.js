@@ -29,7 +29,7 @@ class StoreOwnerHome extends Component {
             const id = element.c[0];
             const info = await this.props.instance.stores.call(id);
             const metadataHash = await this.props.web3.toAscii(info[0]);
-            const balance = info[1].c[0];
+            const balance = this.props.web3.fromWei(info[1].toNumber(), "ether");
             
             const store = {
               id,
