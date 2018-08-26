@@ -85,7 +85,7 @@ class AddProduct extends Component {
             );
           })
           .then(receipt => {
-            console.log(receipt.receipt);
+            alert(receipt.logs[0].event);
             this.setState({
               name: "",
               description: "",

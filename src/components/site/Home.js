@@ -10,12 +10,12 @@ class Home extends Component {
   }
 
   render() {
-    const {isAdmin, isStoreOwner} = this.props;
+    const {isAdmin, isStoreOwner, isShopper} = this.props;
     return(
       <div>
         {isAdmin ? <AdminHome {...this.props} /> : null}
         {isStoreOwner ? <StoreOwnerHome {...this.props} /> : null}
-        {!isStoreOwner && !isAdmin ? <ShopperHome {...this.props} /> : null}
+        {isShopper ? <ShopperHome {...this.props} /> : null}
       </div>
     );
    

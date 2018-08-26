@@ -29,6 +29,7 @@ class Navbar extends Component {
       isStoreOwner: false,
       isContractOwner: false,
       isAdmin: false,
+      isShopper: false,
       instance: null
     };
 
@@ -59,13 +60,16 @@ class Navbar extends Component {
         let isStoreOwner = await marketplaceInstance.isStoreOwner.call(
           this.props.account
         );
-        if (isStoreOwner) this.setState({ isStoreOwner });
+        if (isStoreOwner) 
+          this.setState({ isStoreOwner });
+        else
+          this.setState({ isShopper: true });
       }
     }
   };
 
   render() {
-    const { isContractOwner, isAdmin, isStoreOwner } = this.state;
+    const { isContractOwner, isAdmin, isStoreOwner, isShopper } = this.state;
     const { account } = this.props;
     return (
       <Router>
@@ -112,6 +116,7 @@ class Navbar extends Component {
                   <Home
                     isAdmin={isAdmin}
                     isStoreOwner={isStoreOwner}
+                    isShopper={isShopper}
                     web3={this.props.web3}
                     account={this.props.account}
                     instance={this.state.instance}
