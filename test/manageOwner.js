@@ -9,17 +9,19 @@ contract("ManageOwner", accounts => {
   const other = accounts[3];
   let added_address;
 
-  
+  /// @notice Checks if in the contract creation the sender is added as contract owner.
   it("sets an owner", async () => {
     const manageOwner = await ManageOwner.new();
     assert.equal(await manageOwner.owner.call(), owner);
   });
 
+  /// @notice Validates that only the owner of the contract can add administrators.
   it("only owner can add admin", async () => {
     const manageOwner = await ManageOwner.deployed();
     await assertRevert(manageOwner.registerAdmin(admin, { from: storeOwner }));
   });
 
+  /// @notice Checks that a new admin is added correctly to the contract.
   it("contract owner can add an admin", async () => {
     const manageOwner = await ManageOwner.deployed();
 
@@ -45,11 +47,13 @@ contract("ManageOwner", accounts => {
     );
   });
 
-  it("only owner and admins can add store owner", async () => {
+  /// @notice Validates that only contract administrators can add a store owner.
+  it("only admins can add store owner", async () => {
     const manageOwner = await ManageOwner.deployed();
     await assertRevert(manageOwner.registerOwner(admin, { from: other }));
   });
 
+  /// @notice Checks that a new store owner is added correctly to the contract.
   it("admin can add a store owner", async () => {
     const manageOwner = await ManageOwner.deployed();
 
@@ -75,6 +79,7 @@ contract("ManageOwner", accounts => {
     );
   });
 
+  /// @notice Validates that an existing store owner cannot be added again.
   it("can't add existing store owner", async () => {
     const manageOwner = await ManageOwner.deployed();
     await assertRevert(manageOwner.registerOwner(storeOwner, { from: owner }));

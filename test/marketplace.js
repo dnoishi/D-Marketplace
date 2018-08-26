@@ -17,19 +17,19 @@ contract("Marketplace", accounts => {
   let storeA = '';
   let storeB = '';
 
+  /// @notice Validates that in order to buy a product you need to send the correct value.
   it("need to send correct value to buy product", async () => {
     const marketplace = await Marketplace.deployed();
     let amount = web3.toWei(1, "ether");
 
     await marketplace.registerOwner(storeOwner, { from: owner });
     await marketplace.addStore(ipfsHash, { from: storeOwner });
-    await marketplace.addProductToStore(storeId, ipfsHash, price, quantity, {
-      from: storeOwner
-    });
+    await marketplace.addProductToStore(storeId, ipfsHash, price, quantity, { from: storeOwner });
 
     await assertRevert(marketplace.buyProduct(productId, { from: buyer, value: amount }));
   });
 
+  /// @notice Checks that purchase can be made and it's amount is added to the contract balance and the store balance.
   it("buyer can buy a product from the store", async () => {
     const marketplace = await Marketplace.deployed();
 
@@ -40,9 +40,7 @@ contract("Marketplace", accounts => {
     storeB = await marketplace.stores.call(storeId);
 
     let buyerBalanceBefore = await web3.eth.getBalance(buyer).toNumber();
-    let contractBalanceBefore = await web3.eth
-      .getBalance(marketplace.address)
-      .toNumber();
+    let contractBalanceBefore = await web3.eth.getBalance(marketplace.address).toNumber();
     let storeBalanceBefore = storeB[1].toNumber();
 
     let event = marketplace.LogProductSold();
@@ -54,27 +52,15 @@ contract("Marketplace", accounts => {
     await marketplace.buyProduct(productId, { from: buyer, value: amount });
 
     let buyerBalanceAfter = await web3.eth.getBalance(buyer).toNumber();
-    let contractBalanceAfter = await web3.eth
-      .getBalance(marketplace.address)
-      .toNumber();
+    let contractBalanceAfter = await web3.eth.getBalance(marketplace.address).toNumber();
     storeA = await marketplace.stores.call(storeId);
     let storeBalanceAfter = storeA[1].toNumber();
 
-    assert.equal(
-      expectedBuyer,
-      buyer,
-      "the address of the product buyer does not match the expected value"
-    );
-    assert.equal(
-      contractBalanceAfter,
-      contractBalanceBefore + price,
-      "contract's balance should be increased by the price of the product"
-    );
-    assert.equal(
-      storeBalanceAfter,
-      storeBalanceBefore + price,
-      "store's balance should be increased by the price of the product"
-    );
+    assert.equal(expectedBuyer, buyer, "the address of the product buyer does not match the expected value");
+    assert.equal(contractBalanceAfter, contractBalanceBefore + price, 
+      "contract's balance should be increased by the price of the product");
+    assert.equal(storeBalanceAfter, storeBalanceBefore + price, 
+      "store's balance should be increased by the price of the product");
     assert.isBelow(
       buyerBalanceAfter,
       buyerBalanceBefore - price,
@@ -87,6 +73,20 @@ contract("Marketplace", accounts => {
     );
   });
 
+  /**
+   * These next functions are validated here because 
+   * I need it the marketplace instance in other to have the store balance greater than 0.
+   * And that's only possible after purchases.
+   */
+
+  /// @notice Checks that only store owners can call the withdrawStoreFunds func.
+  it("only store owner can withdraw its store balance", async () => {
+    const marketplace = await Marketplace.deployed();
+    await assertRevert(marketplace.withdrawStoreFunds(storeId, { from: other }));
+  });
+
+
+  /// @notice Validates that a store owner can withdraw only its own store balance.
   it("store owner can withdraw only its store balance", async () => {
     const marketplace = await Marketplace.deployed();
     let other_store_id = 1;
@@ -94,12 +94,7 @@ contract("Marketplace", accounts => {
     await assertRevert(marketplace.withdrawStoreFunds(other_store_id, { from: storeOwner }));
   });
 
-  it("only store owner can withdraw its store balance", async () => {
-    const marketplace = await Marketplace.deployed();
-    await assertRevert(marketplace.withdrawStoreFunds(storeId, { from: other }));
-  });
-
-
+  /// @notice Checks withdrawal func and validates that store funds a deducted and validates contracts balance.
   it("store owner can withdraw a store balance", async () => {
     const marketplace = await Marketplace.deployed();
 

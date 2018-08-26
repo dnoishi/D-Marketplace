@@ -14,11 +14,13 @@ contract("ManageStore", accounts => {
   const price = web3.toWei(1, "ether");
   const quantity = 10;
 
+  /// @notice Validates that anly authorized store owners can add store fronts to the contract.
   it("only storeOwner can add store front", async () => {
     const manageStore = await ManageStore.deployed();
     await assertRevert(manageStore.addStore(ipfsHash, { from: other }));
   });
 
+  /// @notice Checks that store front is added correctly in the contract.
   it("store owner can add a store front", async () => {
     const manageStore = await ManageStore.deployed();
 
@@ -53,6 +55,7 @@ contract("ManageStore", accounts => {
     );
   });
 
+  /// @notice Validates only store owners can call the addProductToStore func.
   it("only storeOwner can add product to store", async () => {
     const manageStore = await ManageStore.deployed();
     await assertRevert(manageStore.addProductToStore(store_id, ipfsHash, price, quantity, {
@@ -60,6 +63,7 @@ contract("ManageStore", accounts => {
       }));
   });
 
+  /// @notice Validates that store owners can add products to their own stores.
   it("only can add product to its store front", async () => {
     const manageStore = await ManageStore.deployed();
     let other_store_id = 1;
@@ -68,6 +72,7 @@ contract("ManageStore", accounts => {
       }));
   });
 
+  /// @notice Checks that a new product is added correctly to a store front.
   it("store owner can add a product to the store", async () => {
     const manageStore = await ManageStore.deployed();
 
