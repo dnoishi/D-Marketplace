@@ -58,6 +58,12 @@ class AddProduct extends Component {
     };
 
     let attrHash;
+    console.log('price', this.state.price);
+
+    const weiPrice = web3.toWei(this.state.price, "ether");
+
+    console.log('wei price', weiPrice);
+    console.log('from wei', web3.fromWei(weiPrice, "ether"));
 
     ipfs.files
       .add(this.state.buffer)
@@ -69,10 +75,11 @@ class AddProduct extends Component {
       })
       .then(attributesHash => {
         attrHash = attributesHash[0].hash;
+        
         return instance.addProductToStore.estimateGas(
           id,
           attrHash,
-          this.state.price,
+          weiPrice,
           this.state.quantity,
           {
             from: account
@@ -81,10 +88,11 @@ class AddProduct extends Component {
       })
       .then(estimatedGas => {
         let hexHash = web3.toHex(attrHash);
+        console.log('price send', weiPrice);
         return instance.addProductToStore(
           id,
           hexHash,
-          this.state.price,
+          weiPrice,
           this.state.quantity,
           {
             from: account,

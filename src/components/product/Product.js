@@ -90,11 +90,10 @@ class Product extends Component {
   }
 
   handleBuy = e => {
-    const { price, instance, id, account, web3 } = this.props;
+    const { price, instance, id, account } = this.props;
     e.preventDefault();
     this.setState({ isSubmitting: true });
-    instance.buyProduct
-      .estimateGas(id, {
+    instance.buyProduct.estimateGas(id, {
         from: account,
         value: price
       })
@@ -102,11 +101,11 @@ class Product extends Component {
         return instance.buyProduct(id, {
           from: account,
           gas: estimatedGas + 100000,
-          value: web3.toWei(price, "ether")
+          value: price
         });
       })
       .then(receipt => {
-        console.log(receipt.receipt);
+        console.log(receipt);
       })
       .catch(err => {
         console.log(err);
@@ -158,9 +157,9 @@ class Product extends Component {
   }
 
   render() {
-    const { price, quantity, storeId, isOwner } = this.props;
+    const { price, quantity, isOwner, web3 } = this.props;
     if (this.state.toStore === true) {
-      return <Redirect to={`/store/${storeId}`}/>
+      return <Redirect to={`/`}/>
     }
     
     const { name, description, image, Modifiying, isSubmitting } = this.state;
@@ -173,18 +172,18 @@ class Product extends Component {
             <p className="card-text">
               {description}
               <br />
-              Price:
-              { Modifiying
-                ? (
-                  <span>
-                    <input className="form-control" type="number"
-                      onChange={this.handleChange}
-                      disabled={isSubmitting}
-                      value={this.state.inputText} />
-                  </span>
-                )
-                : price
-              }
+              Price:  
+                { Modifiying
+                  ? (
+                    <span>
+                      <input className="form-control" type="number"
+                        onChange={this.handleChange}
+                        disabled={isSubmitting}
+                        value={this.state.inputText} />
+                    </span>
+                  )
+                  : web3.fromWei(price, 'ether')
+                }
                
               <br/>
               Avaliable quantity: {quantity}

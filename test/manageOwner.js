@@ -9,6 +9,7 @@ contract("ManageOwner", accounts => {
   const other = accounts[3];
   let added_address;
 
+  
   it("sets an owner", async () => {
     const manageOwner = await ManageOwner.new();
     assert.equal(await manageOwner.owner.call(), owner);

@@ -73,7 +73,7 @@ class AddStore extends Component {
         });
       })
       .then(receipt => {
-        console.log(receipt);
+        console.log(receipt.receipt);
         this.setState({
           storeName: "",
           description: ""

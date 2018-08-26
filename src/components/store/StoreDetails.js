@@ -70,8 +70,8 @@ class StoreDetails extends Component {
       const id = element.c[0];
       const info = await this.props.instance.products.call(id);
       const metadataHash = this.props.web3.toAscii(info[0]);
-      const price = info[1].c[0];
-      const quantity = info[2].c[0];
+      const price = info[1].toNumber();
+      const quantity = info[2].toNumber();
 
       const product = {
         id,
