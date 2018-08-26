@@ -23,30 +23,33 @@ Every time a user that isn't either the store owner or administrator opens the w
 
 ## Installation (How to set it up)
 
-1. Install Truffle globally.
-    ```javascript
-    npm install -g truffle
+1. Clone the repo, move into the directory and install the node packages.
+    ```sh
+    git clone https://github.com/natachadelarosa/ndelarosa
+    cd ndelarosa
+    npm install
     ```
 
-2. Install Node Packages.
-    ```javascript
-    npm install
+2. Install Truffle and Ganache-Cli globally.
+    ```sh
+    npm install -g truffle
+    npm install -g ganache-cli
     ```
     
 3. Run ganache-cli in the console.
-    ```javascript
+    ```sh
     ganache-cli
     ```
 
 4. Run the tests.
-    ```javascript
+    ```sh
     truffle test
     ```
 
 5. Compile and migrate the smart contracts.
-    ```javascript
+    ```sh
     truffle compile
-    truffle migrate
+    truffle migrate --reset
     ```
 
 6. Run the webpack server for front-end hot reloading (outside the development console).

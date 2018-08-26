@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ipfs from "../../utils/ipfs";
 import { Redirect } from 'react-router-dom';
+import Validator from 'react-forms-validator';
 
 import "./Product.css";
 
@@ -14,8 +15,14 @@ class Product extends Component {
       isSubmitting: false,
       Modifiying: false,
       inputText: '',
-      toStore: false
+      toStore: false,
+      isFormValidationErrors : true,
+      submitted:false,
     };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.isValidationError = this.isValidationError.bind(this);
+    this.flag= true;
   }
 
   componentDidMount() {
@@ -35,10 +42,44 @@ class Product extends Component {
 
   handleChange = (e) => {
     this.setState({ inputText: e.target.value });
+    let { submitted } = this.state;
   }
 
   handleModify = () => {
     this.setState({Modifiying: true});
+  }
+
+  isValidationError(flag){
+    this.setState({isFormValidationErrors:flag});
+  }
+    
+  handleFormSubmit(event){
+    event.preventDefault();
+    this.setState( { submitted:true } );
+    let { inputText, isFormValidationErrors } = this.state;
+    if ( !isFormValidationErrors ){
+      const { instance, id, storeId, account, web3 } = this.props;
+      let newPriceWei = web3.toWei(inputText, "ether");
+      this.setState({ isSubmitting: true });
+      instance.changeProductPrice
+        .estimateGas(storeId, id, newPriceWei, { from: account})
+        .then(estimatedGas => {
+          return instance.changeProductPrice(storeId, id, newPriceWei,{ 
+            from: account,
+            gas: estimatedGas + 100000
+          });
+        })
+        .then(receipt => {
+          console.log(receipt.receipt);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+        .finally(() => {
+          this.setState({ isSubmitting: false, Modifiying: false,
+            toStore: true  });
+        });
+    }
   }
 
   handleRemove = (e) => {
@@ -61,31 +102,6 @@ class Product extends Component {
       })
       .finally(() => {
         this.setState({ isSubmitting: false, toStore: true  });
-      });
-  }
-
-  handleSave = (e) => {
-    const newValue = this.state.inputText;
-    const { instance, id, storeId, account } = this.props;
-    e.preventDefault();
-    this.setState({ isSubmitting: true });
-    instance.changeProductPrice
-      .estimateGas(storeId, id, newValue, { from: account})
-      .then(estimatedGas => {
-        return instance.changeProductPrice(storeId, id, newValue,{ 
-          from: account,
-          gas: estimatedGas + 100000
-        });
-      })
-      .then(receipt => {
-        console.log(receipt.receipt);
-      })
-      .catch(err => {
-        console.log(err);
-      })
-      .finally(() => {
-        this.setState({ isSubmitting: false, Modifiying: false,
-          toStore: true  });
       });
   }
 
@@ -130,7 +146,7 @@ class Product extends Component {
     return(
       <div className="card-body">
       <div className="btn-group" role="group" aria-label="Basic example">
-        <button onClick={ Modifiying ? this.handleSave : this.handleModify} className="btn btn-primary btn-sm">
+        <button onClick={ Modifiying ? this.handleFormSubmit : this.handleModify} noValidate className="btn btn-primary btn-sm">
           {Modifiying 
             ? 
             this.state.isSubmitting 
@@ -162,7 +178,7 @@ class Product extends Component {
       return <Redirect to={`/`}/>
     }
     
-    const { name, description, image, Modifiying, isSubmitting } = this.state;
+    const { name, description, image, Modifiying, isSubmitting, submitted, inputText  } = this.state;
     return (
       <div className="col-md-4">
         <div className="card">
@@ -175,11 +191,17 @@ class Product extends Component {
               Price:  
                 { Modifiying
                   ? (
-                    <span>
+                    <span noValidate>
                       <input className="form-control" type="number"
                         onChange={this.handleChange}
                         disabled={isSubmitting}
-                        value={this.state.inputText} />
+                        value={inputText} />
+                      <Validator 
+                        isValidationError={this.isValidationError}
+                        isFormSubmitted={submitted} 
+                        reference={{inputText:inputText}}
+                        validationRules={{required:true,number:true,maxLength:10}} 
+                        validationMessages={{required:"This field is required",number:"Not a valid number",maxLength:"Not a valid number"}}/>
                     </span>
                   )
                   : web3.fromWei(price, 'ether')

@@ -1,25 +1,43 @@
 import React, { Component } from "react";
+import Validator from 'react-forms-validator';
 
 class AddForm extends Component {
-  state = {
-    address: ""
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      address: ""
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.isValidationError = this.isValidationError.bind(this);
+    this.flag= true;
+  }
+  
 
   handleChange = e => {
     const newAddress = e.target.value;
     this.setState({ address: newAddress });
+    let { submitted } = this.state;
   };
 
-  handleOnClick = e => {
-    e.preventDefault();
-    this.props.submit(this.state.address);
-    this.setState({ address: "" });
-  };
+  isValidationError(flag){
+    this.setState({isFormValidationErrors:flag});
+  }
+    
+  handleFormSubmit(event){
+    event.preventDefault();
+    this.setState( { submitted:true } );
+    let { address, isFormValidationErrors } = this.state;
+    if ( !isFormValidationErrors ){
+      this.setState({ address: "" });
+      this.props.submit(address);
+    }
+  }
 
   render() {
-    const { address } = this.state;
+    const { address, submitted } = this.state;
     return (
-      <form>
+      <form noValidate onSubmit={this.handleFormSubmit}>
         <div className="form-row align-items-center">
           <div className="col-md-6">
             <label className="sr-only" htmlFor="address">
@@ -34,6 +52,12 @@ class AddForm extends Component {
               id="address"
               placeholder="Address (0x0)"
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{address:address}} 
+              validationRules={{required:true}} 
+              validationMessages={{required:"This field is required",}}/>
           </div>
 
           <div className="col-auto">
@@ -41,7 +65,6 @@ class AddForm extends Component {
               type="submit"
               className="btn btn-primary"
               disabled={this.props.isSubmitting}
-              onClick={this.handleOnClick}
             >
               {this.state.isSubmitting ?
                 <span>

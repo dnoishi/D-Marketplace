@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Jumbotron from "../../components/site/Jumbotron";
 import ipfs from "../../utils/ipfs";
 import { Redirect } from 'react-router-dom';
+import Validator from 'react-forms-validator';
 
 class AddProduct extends Component {
   constructor(props) {
@@ -13,20 +14,93 @@ class AddProduct extends Component {
       description: "",
       price: "",
       quantity: "",
-      toHome: false
+      toHome: false,
+      isFormValidationErrors : true,
+      submitted:false
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.isValidationError = this.isValidationError.bind(this);
+    this.flag= true;
   }
-
-  /*componentDidMount() {
-    if (this.props.location.state !== null) {
-      console.log(this.props.location.state.isOwner);
-    }
-  }*/
 
   handleChange(evt) {
     this.setState({ [evt.target.name]: evt.target.value });
+    let { submitted } = this.state;
   }
+
+  isValidationError(flag){
+    this.setState({isFormValidationErrors:flag});
+  }
+
+  handleFormSubmit(event){
+    event.preventDefault();
+    this.setState( { submitted:true } );
+    let { name, description, price, quantity, isFormValidationErrors } = this.state;
+    if ( !isFormValidationErrors ){
+        const {web3, instance, account, location} = this.props;
+        const { id } = location.state;
+        this.setState({ isSubmitting: true });
+        let product = {
+          name: name,
+          description: description,
+          image: ""
+        };
+
+        let attrHash;
+        const weiPrice = web3.toWei(price, "ether");
+
+        ipfs.files
+          .add(this.state.buffer)
+          .then(filesAdded => {
+            const file = filesAdded[0];
+            product.image = "https://ipfs.io/ipfs/" + file.hash;
+            const data = Buffer.from(JSON.stringify(product));
+            return ipfs.files.add(data);
+          })
+          .then(attributesHash => {
+            attrHash = attributesHash[0].hash;
+            
+            return instance.addProductToStore.estimateGas(
+              id,
+              attrHash,
+              weiPrice,
+              quantity,
+              {
+                from: account
+              }
+            );
+          })
+          .then(estimatedGas => {
+            let hexHash = web3.toHex(attrHash);
+            return instance.addProductToStore(
+              id,
+              hexHash,
+              weiPrice,
+              quantity,
+              {
+                from: account,
+                gas: estimatedGas + 100000
+              }
+            );
+          })
+          .then(receipt => {
+            console.log(receipt.receipt);
+            this.setState({
+              name: "",
+              description: "",
+              price: "",
+              quantity: ""
+            });
+          })
+          .catch(err => {
+            console.error(err);
+          })
+          .finally(() => {
+            this.setState({ isSubmitting: false, toHome: true });
+          });
+    }
+}
 
   captureFile = event => {
     event.stopPropagation();
@@ -46,89 +120,19 @@ class AddProduct extends Component {
     this.setState({ buffer });
   };
 
-  handleClick(e) {
-    const {web3, instance, account, location} = this.props;
-    e.preventDefault();
-    const { id } = location.state;
-    this.setState({ isSubmitting: true });
-    let product = {
-      name: this.state.name,
-      description: this.state.description,
-      image: ""
-    };
-
-    let attrHash;
-    console.log('price', this.state.price);
-
-    const weiPrice = web3.toWei(this.state.price, "ether");
-
-    console.log('wei price', weiPrice);
-    console.log('from wei', web3.fromWei(weiPrice, "ether"));
-
-    ipfs.files
-      .add(this.state.buffer)
-      .then(filesAdded => {
-        const file = filesAdded[0];
-        product.image = "https://ipfs.io/ipfs/" + file.hash;
-        const data = Buffer.from(JSON.stringify(product));
-        return ipfs.files.add(data);
-      })
-      .then(attributesHash => {
-        attrHash = attributesHash[0].hash;
-        
-        return instance.addProductToStore.estimateGas(
-          id,
-          attrHash,
-          weiPrice,
-          this.state.quantity,
-          {
-            from: account
-          }
-        );
-      })
-      .then(estimatedGas => {
-        let hexHash = web3.toHex(attrHash);
-        console.log('price send', weiPrice);
-        return instance.addProductToStore(
-          id,
-          hexHash,
-          weiPrice,
-          this.state.quantity,
-          {
-            from: account,
-            gas: estimatedGas + 100000
-          }
-        );
-      })
-      .then(receipt => {
-        console.log(receipt.receipt);
-        this.setState({
-          name: "",
-          description: "",
-          price: "",
-          quantity: ""
-        });
-      })
-      .catch(err => {
-        console.error(err);
-      })
-      .finally(() => {
-        this.setState({ isSubmitting: false, toHome: true });
-      });
-  }
-
   render() {
     const { id, storeName } = this.props.location.state;
     if (this.state.toHome === true) {
       return <Redirect to={`/store/${id}`} push/>
     }
+    let { name, description, price, quantity, buffer, submitted } = this.state;
     return (
       <div>
         <Jumbotron
           title="Add Product"
           subtitle={`Add product to ${storeName}`}
         />
-        <form className="container">
+        <form className="container" noValidate onSubmit={this.handleFormSubmit}>
           <div className="form-group col-md-6">
             <label htmlFor="name">Product Name</label>
             <input
@@ -136,11 +140,17 @@ class AddProduct extends Component {
               className="form-control"
               name="name"
               id="name"
-              value={this.state.name}
+              value={name}
               onChange={this.handleChange}
               disabled={this.state.isSubmitting}
               placeholder="Enter name"
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{name:name}} 
+              validationRules={{required:true}} 
+              validationMessages={{required:"This field is required",}}/>
           </div>
           <div className="form-group col-md-6">
             <label htmlFor="description">Product Description</label>
@@ -150,9 +160,15 @@ class AddProduct extends Component {
               id="description"
               rows="3"
               onChange={this.handleChange}
-              value={this.state.description}
+              value={description}
               disabled={this.state.isSubmitting}
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{description:description}} 
+              validationRules={{required:true}} 
+              validationMessages={{required:"This field is required",}}/>
           </div>
           <div className="form-group col-md-2">
             <label htmlFor="price">Product Price</label>
@@ -161,11 +177,17 @@ class AddProduct extends Component {
               className="form-control"
               name="price"
               id="price"
-              value={this.state.price}
+              value={price}
               onChange={this.handleChange}
               disabled={this.state.isSubmitting}
               placeholder="Enter price"
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{price:price}}
+              validationRules={{required:true,number:true,maxLength:10}} 
+              validationMessages={{required:"This field is required",number:"Not a valid number",maxLength:"Not a valid number"}}/>
           </div>
           <div className="form-group col-md-2">
             <label htmlFor="quantity">Product Quantity</label>
@@ -174,15 +196,21 @@ class AddProduct extends Component {
               className="form-control"
               name="quantity"
               id="quantity"
-              value={this.state.quantity}
+              value={quantity}
               onChange={this.handleChange}
               disabled={this.state.isSubmitting}
               placeholder="Enter quantity"
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{quantity:quantity}}
+              validationRules={{required:true,number:true,maxLength:10}} 
+              validationMessages={{required:"This field is required",number:"Not a valid number",maxLength:"Not a valid number"}}/>
           </div>
           <div className="form-group col-md-6">
             <label className="sr-only" htmlFor="image">
-              Store front Image
+              Product Image
             </label>
             <input
               type="file"
@@ -196,7 +224,6 @@ class AddProduct extends Component {
             type="submit"
             className="btn btn-primary"
             disabled={this.state.isSubmitting}
-            onClick={e => this.handleClick(e)}
           >
             {this.state.isSubmitting ?
               <span>

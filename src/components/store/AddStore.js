@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Jumbotron from "../../components/site/Jumbotron";
 import ipfs from "../../utils/ipfs";
 import { Redirect } from 'react-router-dom';
+import Validator from 'react-forms-validator';
 
 class AddStore extends Component {
   constructor(props) {
@@ -11,14 +12,77 @@ class AddStore extends Component {
       buffer: null,
       storeName: "",
       description: "",
-      toHome: false
+      toHome: false,
+      isFormValidationErrors : true,
+      submitted:false
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.isValidationError = this.isValidationError.bind(this);
+    this.flag= true;
   }
 
 
   handleChange(evt) {
     this.setState({ [evt.target.name]: evt.target.value });
+    let { submitted } = this.state;
+  }
+
+  isValidationError(flag){
+    this.setState({isFormValidationErrors:flag});
+  }
+
+  handleFormSubmit(event){
+    event.preventDefault();
+    this.setState( { submitted:true } );
+    let { storeName, description, buffer, isFormValidationErrors } = this.state;
+    if ( !isFormValidationErrors ){  
+      this.setState({ isSubmitting: true });
+      let attributes = {
+        storeName: storeName,
+        description: description,
+        image: ""
+      };
+
+      let attrHash;
+
+      ipfs.files
+        .add(buffer)
+        .then(filesAdded => {
+          const file = filesAdded[0];
+          attributes.image = "https://ipfs.io/ipfs/" + file.hash;
+          const data = Buffer.from(JSON.stringify(attributes));
+          return ipfs.files.add(data);
+        })
+        .then(attributesHash => {
+          console.log("ipfs", attributesHash[0].hash);
+          attrHash = attributesHash[0].hash;
+          return this.props.instance.addStore.estimateGas(attrHash, {
+            from: this.props.account
+          });
+        })
+        .then(estimatedGas => {
+          let hexHash = this.props.web3.toHex(attrHash);
+          return this.props.instance.addStore(hexHash, {
+            from: this.props.account,
+            gas: estimatedGas + 100000
+          });
+        })
+        .then(receipt => {
+          console.log(receipt.receipt);
+          this.setState({
+            storeName: "",
+            description: ""
+          });
+        })
+        .catch(err => {
+          console.error(err);
+        })
+        .finally(() => {
+          this.setState({ isSubmitting: false,
+            toHome: true });
+        });
+    }
   }
 
   captureFile = event => {
@@ -39,63 +103,15 @@ class AddStore extends Component {
     this.setState({ buffer });
   };
 
-  handleClick(e) {
-    e.preventDefault();
-    this.setState({ isSubmitting: true });
-    let attributes = {
-      storeName: this.state.storeName,
-      description: this.state.description,
-      image: ""
-    };
-
-    let attrHash;
-
-    ipfs.files
-      .add(this.state.buffer)
-      .then(filesAdded => {
-        const file = filesAdded[0];
-        attributes.image = "https://ipfs.io/ipfs/" + file.hash;
-        const data = Buffer.from(JSON.stringify(attributes));
-        return ipfs.files.add(data);
-      })
-      .then(attributesHash => {
-        console.log("ipfs", attributesHash[0].hash);
-        attrHash = attributesHash[0].hash;
-        return this.props.instance.addStore.estimateGas(attrHash, {
-          from: this.props.account
-        });
-      })
-      .then(estimatedGas => {
-        let hexHash = this.props.web3.toHex(attrHash);
-        return this.props.instance.addStore(hexHash, {
-          from: this.props.account,
-          gas: estimatedGas + 100000
-        });
-      })
-      .then(receipt => {
-        console.log(receipt.receipt);
-        this.setState({
-          storeName: "",
-          description: ""
-        });
-      })
-      .catch(err => {
-        console.error(err);
-      })
-      .finally(() => {
-        this.setState({ isSubmitting: false,
-          toHome: true });
-      });
-  }
-
   render() {
     if (this.state.toHome === true) {
       return <Redirect to='/' push/>
     }
+    let { storeName, description, isSubmitting, submitted } = this.state;
     return (
       <div>
         <Jumbotron title="Add Store" subtitle="Add store to the marketplace." />
-        <form className="container">
+        <form className="container" noValidate onSubmit={this.handleFormSubmit}>
           <div className="form-group col-md-6">
             <label htmlFor="storeName">Store Name</label>
             <input
@@ -103,11 +119,17 @@ class AddStore extends Component {
               className="form-control"
               name="storeName"
               id="storeName"
-              value={this.state.name}
+              value={storeName}
               onChange={this.handleChange}
-              disabled={this.state.isSubmitting}
+              disabled={isSubmitting}
               placeholder="Enter name"
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{storeName:storeName}} 
+              validationRules={{required:true}} 
+              validationMessages={{required:"This field is required",}}/>
           </div>
           <div className="form-group col-md-6">
             <label htmlFor="description">Store Description</label>
@@ -117,9 +139,15 @@ class AddStore extends Component {
               id="description"
               rows="3"
               onChange={this.handleChange}
-              value={this.state.description}
-              disabled={this.state.isSubmitting}
+              value={description}
+              disabled={isSubmitting}
             />
+            <Validator 
+              isValidationError={this.isValidationError}
+              isFormSubmitted={submitted} 
+              reference={{description:description}} 
+              validationRules={{required:true}} 
+              validationMessages={{required:"This field is required",}}/>
           </div>
           <div className="form-group col-md-6">
             <label className="sr-only" htmlFor="image">
@@ -136,8 +164,7 @@ class AddStore extends Component {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={this.state.isSubmitting}
-            onClick={e => this.handleClick(e)}
+            disabled={isSubmitting}
           >
             {this.state.isSubmitting ?
               <span>
