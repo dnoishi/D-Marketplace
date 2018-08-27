@@ -49,7 +49,7 @@ Every time a user that isn't either the store owner or administrator opens the w
 5. Compile and migrate the smart contracts.
     ```sh
     truffle compile
-    truffle migrate --reset
+    truffle migrate
     ```
 
 6. Run the webpack server for front-end hot reloading (outside the development console).
